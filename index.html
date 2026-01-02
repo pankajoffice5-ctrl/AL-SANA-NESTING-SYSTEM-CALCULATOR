@@ -115,7 +115,6 @@ footer {
 
     </button>
   </div>
-
   <footer>
     © AL SANA Engineering · Internal Use Only
   </footer>
@@ -127,6 +126,10 @@ function openPage(page) {
   window.location.href = page;
 }
 </script>
-
+<script>
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+});
+</script>
 </body>
 </html>

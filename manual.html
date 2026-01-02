@@ -132,6 +132,10 @@ function downloadExcel() {
     document.body.removeChild(link);
 }
 </script>
-
+<script>
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+});
+</script>
 </body>
 </html>
