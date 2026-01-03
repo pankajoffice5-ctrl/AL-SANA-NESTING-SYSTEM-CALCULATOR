@@ -57,6 +57,10 @@ button {
 button:hover {
     background-color: #218838;
 }
+#totalRow td {
+    font-weight: bold;
+    background: #e9ecef;
+}
 </style>
 </head>
 <body>
@@ -177,6 +181,28 @@ button:hover {
             <option value="HEA 550" data-weight="219">HEA 550</option>
             <option value="HEA 600" data-weight="252">HEA 600</option>
             <option value="HEA 650" data-weight="289">HEA 650</option>
+
+            <!-- UPN Sections (kg/m) -->
+            <option value="UPN 50" data-weight="5.59">UPN 50</option>
+            <option value="UPN 60" data-weight="5.07">UPN 60</option>
+            <option value="UPN 65" data-weight="7.09">UPN 65</option> 
+            <option value="UPN 80" data-weight="8.64">UPN 80</option>
+            <option value="UPN 100" data-weight="10.6">UPN 100</option>
+            <option value="UPN 120" data-weight="13.4">UPN 120</option>
+            <option value="UPN 140" data-weight="16">UPN 140</option>
+            <option value="UPN 160" data-weight="18.8">UPN 160</option>
+            <option value="UPN 180" data-weight="22">UPN 180</option>
+            <option value="UPN 200" data-weight="25.3">UPN 200</option>  
+            <option value="UPN 220" data-weight="29.4">UPN 220</option>
+            <option value="UPN 240" data-weight="33.2">UPN 240</option>
+            <option value="UPN 260" data-weight="37.9">UPN 260</option>
+            <option value="UPN 280" data-weight="41.8">UPN 280</option>
+            <option value="UPN 300" data-weight="46.2">UPN 300</option>      
+            <option value="UPN 320" data-weight="59.5">UPN 320</option>
+            <option value="UPN 350" data-weight="60.6">UPN 350</option>
+            <option value="UPN 380" data-weight="63.1">UPN 380</option>
+            <option value="UPN 400" data-weight="71.8">UPN 400</option>
+
         </select>
     </td>
     <td><input type="number" oninput="calculateWeight(this)"></td>
@@ -186,6 +212,13 @@ button:hover {
     <td><input type="number" value="1" oninput="calculateWeight(this)"></td>
     <td><span>0</span></td>
 </tr>
+
+<!-- Total Row -->
+<tr id="totalRow">
+    <td colspan="6" style="text-align:right;">Total WT (kg)</td>
+    <td><span id="totalWT">0</span></td>
+</tr>
+
 </tbody>
 </table>
 
@@ -196,30 +229,6 @@ button:hover {
 <script>
 const density = 7850;
 
-function addRow() {
-    const table = document.getElementById('materialTable').getElementsByTagName('tbody')[0];
-    const newRow = table.insertRow();
-    const cell0 = newRow.insertCell(0);
-    const select = document.createElement('select');
-    select.innerHTML = document.querySelector('#materialTable tbody tr td select').innerHTML;
-    select.onchange = function() { calculateWeight(this); };
-    cell0.appendChild(select);
-
-    for(let i=1;i<=5;i++){ // DIM1, DIM2, THK, LENGTH, QTY
-        const cell = newRow.insertCell(i);
-        const input = document.createElement('input');
-        input.type = 'number';
-        if(i===5) input.value = 1; // default QTY=1
-        input.oninput = function(){ calculateWeight(this); };
-        cell.appendChild(input);
-    }
-
-    const cell6 = newRow.insertCell(6);
-    const span = document.createElement('span');
-    span.innerText = '0';
-    cell6.appendChild(span);
-}
-
 function calculateWeight(element){
     const row = element.parentElement.parentElement;
     const select = row.cells[0].querySelector('select');
@@ -228,65 +237,142 @@ function calculateWeight(element){
     const length = parseFloat(row.cells[4].querySelector('input').value) || 0;
     const qty = parseFloat(row.cells[5].querySelector('input').value) || 1;
 
-    if(stdWeight){
-        row.cells[6].querySelector('span').innerText = (stdWeight * length / 1000 * qty).toFixed(2);
-        return;
-    }
-
-    const material = select.value;
-    const dim1 = parseFloat(row.cells[1].querySelector('input').value) || 0;
-    const dim2 = parseFloat(row.cells[2].querySelector('input').value) || 0;
-    const thk  = parseFloat(row.cells[3].querySelector('input').value) || 0;
     let weight = 0;
 
-    switch(material){
-        case 'RHS/SHS':
-            weight = ((dim1*dim2 - (dim1-2*thk)*(dim2-2*thk))/1000000)*density*length/1000;
-            break;
-        case 'CHS':
-            weight = (((Math.PI * Math.pow(dim1/2,2)) - (Math.PI*Math.pow((dim1-thk*2)/2,2)))/1000000)*density*length/1000;
-            break;
-        case 'PLATE':
-            weight = (dim1*dim2*thk/1000000000)*density*length/1000;
-            break;
-        case 'ROUND BAR':
-            weight = (Math.PI*Math.pow(dim1/2,2)/1000000)*density*length/1000;
-            break;
-        case 'FLAT BAR':
-            weight = (dim1*thk/1000/1000)*density*length/1000;
-            break;
-        case 'ANGLE/TEE':
-            weight = ((dim1+dim2-thk)*thk/1000/1000)*density*length/1000;
-            break;
-        case 'CHANNEL':
-            weight = ((dim1+dim2*2-thk*2)*thk/1000/1000)*density*length/1000;
-            break;
-        case 'SQ BAR':
-            weight = (dim1*dim1/1000000)*density*length/1000;
-            break;
-        case 'REBAR':
-            weight = (Math.pow(dim1,2)/162.28*density/7850)*length/1000;
-            break;
-        case 'HEX BAR':
-            weight = (0.006798*Math.pow(dim1,2)*density/7850)*length/1000;
-            break;
-        default:
-            weight = 0;
+    if(stdWeight){
+        weight = stdWeight * length / 1000 * qty;
+    } else {
+        const material = select.value;
+        const dim1 = parseFloat(row.cells[1].querySelector('input').value) || 0;
+        const dim2 = parseFloat(row.cells[2].querySelector('input').value) || 0;
+        const thk  = parseFloat(row.cells[3].querySelector('input').value) || 0;
+
+        switch(material){
+            case 'RHS/SHS':
+                weight = ((dim1*dim2 - (dim1-2*thk)*(dim2-2*thk))/1000000)*density*length/1000;
+                break;
+            case 'CHS':
+                weight = (((Math.PI * Math.pow(dim1/2,2)) - (Math.PI*Math.pow((dim1-thk*2)/2,2)))/1000000)*density*length/1000;
+                break;
+            case 'PLATE':
+                weight = (dim1*dim2*thk/1000000000)*density;
+                break;
+            case 'ROUND BAR':
+                weight = (Math.PI*Math.pow(dim1/2,2)/1000000)*density*length/1000;
+                break;
+            case 'FLAT BAR':
+                weight = (dim1*thk/1000/1000)*density*length/1000;
+                break;
+            case 'ANGLE/TEE':
+                weight = ((dim1+dim2-thk)*thk/1000/1000)*density*length/1000;
+                break;
+            case 'CHANNEL':
+                weight = ((dim1+dim2*2-thk*2)*thk/1000/1000)*density*length/1000;
+                break;
+            case 'SQ BAR':
+                weight = (dim1*dim1/1000000)*density*length/1000;
+                break;
+            case 'REBAR':
+                weight = (Math.pow(dim1,2)/162.28*density/7850)*length/1000;
+                break;
+            case 'HEX BAR':
+                weight = (0.006798*Math.pow(dim1,2)*density/7850)*length/1000;
+                break;
+            default:
+                weight = 0;
+        }
+        weight *= qty;
     }
 
-    row.cells[6].querySelector('span').innerText = (weight * qty).toFixed(2);
+    row.cells[6].querySelector('span').innerText = weight.toFixed(2);
+    updateTotalWeight();
 }
 
-// Download Excel
-function downloadExcel(){
-    let table = document.getElementById('materialTable');
-    let wb = XLSX.utils.table_to_book(table, {sheet:"Sheet1"});
+function updateTotalWeight(){
+    const table = document.getElementById('materialTable');
+    let sum = 0;
+    for(let i=0; i < table.tBodies[0].rows.length-1; i++){ // exclude total row
+        const rowWeight = parseFloat(table.tBodies[0].rows[i].cells[6].querySelector('span').innerText) || 0;
+        sum += rowWeight;
+    }
+    document.getElementById('totalWT').innerText = sum.toFixed(2);
+}
+
+function addRow() {
+    const table = document.getElementById('materialTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow(table.rows.length-1); // insert above total row
+    const cell0 = newRow.insertCell(0);
+    const select = document.createElement('select');
+    select.innerHTML = document.querySelector('#materialTable tbody tr td select').innerHTML;
+    select.onchange = function() { calculateWeight(this); };
+    cell0.appendChild(select);
+
+    for(let i=1;i<=5;i++){
+        const cell = newRow.insertCell(i);
+        const input = document.createElement('input');
+        input.type = 'number';
+        if(i===5) input.value = 1;
+        input.oninput = function(){ calculateWeight(this); };
+        cell.appendChild(input);
+    }
+
+    const cell6 = newRow.insertCell(6);
+    const span = document.createElement('span');
+    span.innerText = '0';
+    cell6.appendChild(span);
+
+    updateTotalWeight();
+}
+
+function downloadExcel() {
+    const originalTable = document.getElementById('materialTable');
+    // Create a new temporary table
+    const tempTable = document.createElement('table');
+
+    // Copy the header
+    const thead = originalTable.querySelector('thead').cloneNode(true);
+    tempTable.appendChild(thead);
+
+    // Copy body
+    const tbody = document.createElement('tbody');
+    const rows = originalTable.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const newRow = document.createElement('tr');
+        const cells = row.querySelectorAll('td');
+        cells.forEach((cell, index) => {
+            const newCell = document.createElement('td');
+
+            // For first column, replace select with selected text
+            if (cell.querySelector('select')) {
+                newCell.innerText = cell.querySelector('select').options[cell.querySelector('select').selectedIndex].text;
+            }
+            // For WT column, just take span value
+            else if (cell.querySelector('span')) {
+                newCell.innerText = cell.querySelector('span').innerText;
+            }
+            // For other inputs, take the input value
+            else if (cell.querySelector('input')) {
+                newCell.innerText = cell.querySelector('input').value;
+            }
+            else {
+                newCell.innerText = cell.innerText;
+            }
+
+            newRow.appendChild(newCell);
+        });
+        tbody.appendChild(newRow);
+    });
+
+    tempTable.appendChild(tbody);
+
+    // Convert the temp table to Excel
+    const wb = XLSX.utils.table_to_book(tempTable, { sheet: "Sheet1" });
     XLSX.writeFile(wb, "MaterialWeightList.xlsx");
 }
 
-document.addEventListener("contextmenu", function(e) {
-  e.preventDefault();
-});
+
+
+document.addEventListener("contextmenu", function(e) { e.preventDefault(); });
 </script>
 
 </div>
