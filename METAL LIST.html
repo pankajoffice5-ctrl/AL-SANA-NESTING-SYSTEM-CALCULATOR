@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Material Weight List</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+.container {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    max-width: 1300px;
+    width: 100%;
+}
+h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px 10px;
+    text-align: center;
+}
+th {
+    background-color: #007bff;
+    color: #fff;
+}
+select, input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 4px;
+}
+button {
+    margin-top: 15px;
+    padding: 8px 15px;
+    border: none;
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #218838;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h3>Material Weight List</h3>
+
+<table id="materialTable">
+<thead>
+<tr>
+    <th>MATERIAL / SHAPE</th>
+    <th>DIM 1 (mm)</th>
+    <th>DIM 2 (mm)</th>
+    <th>THK (mm)</th>
+    <th>LENGTH (mm)</th>
+    <th>QTY (NOS)</th>
+    <th>WT (kg)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+    <td>
+        <select onchange="calculateWeight(this)">
+            <option value="">Select</option>
+            <option value="CHS">CHS</option>
+            <option value="RHS/SHS">RHS/SHS</option>
+            <option value="ROUND BAR">ROUND BAR</option>
+            <option value="FLAT BAR">FLAT BAR</option>
+            <option value="ANGLE/TEE">ANGLE/TEE</option>
+            <option value="CHANNEL">CHANNEL</option>
+            <option value="PLATE">PLATE</option>
+            <option value="SQ BAR">SQ BAR</option>
+            <option value="REBAR">REBAR</option>
+            <option value="HEX BAR">HEX BAR</option>
+
+            <!-- HEB -->
+            <option value="HEB 100" data-weight="20.4">HEB 100</option>
+            <option value="HEB 120" data-weight="26.7">HEB 120</option>
+            <option value="HEB 140" data-weight="33.7">HEB 140</option>
+            <option value="HEB 160" data-weight="42.6">HEB 160</option>
+            <option value="HEB 180" data-weight="51.2">HEB 180</option>
+            <option value="HEB 200" data-weight="61.3">HEB 200</option>
+            <option value="HEB 220" data-weight="71.3">HEB 220</option>
+            <option value="HEB 240" data-weight="83.2">HEB 240</option>
+            <option value="HEB 260" data-weight="93">HEB 260</option>
+            <option value="HEB 280" data-weight="103">HEB 280</option>
+            <option value="HEB 300" data-weight="117">HEB 300</option>
+            <option value="HEB 320" data-weight="127">HEB 320</option>
+            <option value="HEB 340" data-weight="134">HEB 340</option>
+            <option value="HEB 360" data-weight="146">HEB 360</option>
+            <option value="HEB 400" data-weight="171">HEB 400</option>
+            <option value="HEB 450" data-weight="211">HEB 450</option>
+            <option value="HEB 500" data-weight="245">HEB 500</option>
+            <option value="HEB 550" data-weight="291">HEB 550</option>
+            <option value="HEB 600" data-weight="337">HEB 600</option>
+            <option value="HEB 650" data-weight="385">HEB 650</option>
+
+            <!-- IPN -->
+            <option value="IPN 80" data-weight="6">IPN 80</option>
+            <option value="IPN 100" data-weight="8.1">IPN 100</option>
+            <option value="IPN 120" data-weight="10.4">IPN 120</option>
+            <option value="IPN 140" data-weight="12.9">IPN 140</option>
+            <option value="IPN 160" data-weight="15.8">IPN 160</option>
+            <option value="IPN 180" data-weight="18.8">IPN 180</option>
+            <option value="IPN 200" data-weight="22.4">IPN 200</option>
+            <option value="IPN 220" data-weight="26.2">IPN 220</option>
+            <option value="IPN 240" data-weight="30.7">IPN 240</option>
+            <option value="IPN 260" data-weight="35.8">IPN 260</option>
+            <option value="IPN 280" data-weight="41">IPN 280</option>
+            <option value="IPN 300" data-weight="46.2">IPN 300</option>
+            <option value="IPN 320" data-weight="52.7">IPN 320</option>
+            <option value="IPN 340" data-weight="59.4">IPN 340</option>
+            <option value="IPN 360" data-weight="66.3">IPN 360</option>
+            <option value="IPN 380" data-weight="73.4">IPN 380</option>
+            <option value="IPN 400" data-weight="81">IPN 400</option>
+            <option value="IPN 450" data-weight="92">IPN 450</option>
+            <option value="IPN 500" data-weight="103">IPN 500</option>
+            <option value="IPN 550" data-weight="116">IPN 550</option>
+
+            <!-- IPE -->
+            <option value="IPE 80" data-weight="6">IPE 80</option>
+            <option value="IPE 100" data-weight="8.1">IPE 100</option>
+            <option value="IPE 120" data-weight="10.4">IPE 120</option>
+            <option value="IPE 140" data-weight="12.9">IPE 140</option>
+            <option value="IPE 160" data-weight="15.8">IPE 160</option>
+            <option value="IPE 180" data-weight="18.8">IPE 180</option>
+            <option value="IPE 200" data-weight="22.4">IPE 200</option>
+            <option value="IPE 220" data-weight="26.2">IPE 220</option>
+            <option value="IPE 240" data-weight="30.7">IPE 240</option>
+            <option value="IPE 270" data-weight="36.2">IPE 270</option>
+            <option value="IPE 300" data-weight="42.2">IPE 300</option>
+            <option value="IPE 330" data-weight="49.1">IPE 330</option>
+            <option value="IPE 360" data-weight="57.1">IPE 360</option>
+            <option value="IPE 400" data-weight="66.3">IPE 400</option>
+            <option value="IPE 450" data-weight="77.6">IPE 450</option>
+            <option value="IPE 500" data-weight="90.7">IPE 500</option>
+            <option value="IPE 550" data-weight="106">IPE 550</option>
+            <option value="IPE 600" data-weight="122">IPE 600</option>
+
+            <!-- HEA -->
+            <option value="HEA 100" data-weight="16.7">HEA 100</option>
+            <option value="HEA 120" data-weight="20.4">HEA 120</option>
+            <option value="HEA 140" data-weight="25.3">HEA 140</option>
+            <option value="HEA 160" data-weight="30.4">HEA 160</option>
+            <option value="HEA 180" data-weight="35.5">HEA 180</option>
+            <option value="HEA 200" data-weight="42.3">HEA 200</option>
+            <option value="HEA 220" data-weight="50.5">HEA 220</option>
+            <option value="HEA 240" data-weight="60.3">HEA 240</option>
+            <option value="HEA 260" data-weight="68.2">HEA 260</option>
+            <option value="HEA 280" data-weight="76.4">HEA 280</option>
+            <option value="HEA 300" data-weight="88.3">HEA 300</option>
+            <option value="HEA 320" data-weight="97.6">HEA 320</option>
+            <option value="HEA 340" data-weight="105">HEA 340</option>
+            <option value="HEA 360" data-weight="115">HEA 360</option>
+            <option value="HEA 400" data-weight="134">HEA 400</option>
+            <option value="HEA 450" data-weight="159">HEA 450</option>
+            <option value="HEA 500" data-weight="187">HEA 500</option>
+            <option value="HEA 550" data-weight="219">HEA 550</option>
+            <option value="HEA 600" data-weight="252">HEA 600</option>
+            <option value="HEA 650" data-weight="289">HEA 650</option>
+        </select>
+    </td>
+    <td><input type="number" oninput="calculateWeight(this)"></td>
+    <td><input type="number" oninput="calculateWeight(this)"></td>
+    <td><input type="number" oninput="calculateWeight(this)"></td>
+    <td><input type="number" oninput="calculateWeight(this)"></td>
+    <td><input type="number" value="1" oninput="calculateWeight(this)"></td>
+    <td><span>0</span></td>
+</tr>
+</tbody>
+</table>
+
+<button onclick="addRow()">Add Row</button>
+<button onclick="downloadExcel()">Download Excel</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const density = 7850;
+
+function addRow() {
+    const table = document.getElementById('materialTable').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+    const cell0 = newRow.insertCell(0);
+    const select = document.createElement('select');
+    select.innerHTML = document.querySelector('#materialTable tbody tr td select').innerHTML;
+    select.onchange = function() { calculateWeight(this); };
+    cell0.appendChild(select);
+
+    for(let i=1;i<=5;i++){ // DIM1, DIM2, THK, LENGTH, QTY
+        const cell = newRow.insertCell(i);
+        const input = document.createElement('input');
+        input.type = 'number';
+        if(i===5) input.value = 1; // default QTY=1
+        input.oninput = function(){ calculateWeight(this); };
+        cell.appendChild(input);
+    }
+
+    const cell6 = newRow.insertCell(6);
+    const span = document.createElement('span');
+    span.innerText = '0';
+    cell6.appendChild(span);
+}
+
+function calculateWeight(element){
+    const row = element.parentElement.parentElement;
+    const select = row.cells[0].querySelector('select');
+    const selectedOption = select.options[select.selectedIndex];
+    const stdWeight = selectedOption.getAttribute('data-weight');
+    const length = parseFloat(row.cells[4].querySelector('input').value) || 0;
+    const qty = parseFloat(row.cells[5].querySelector('input').value) || 1;
+
+    if(stdWeight){
+        row.cells[6].querySelector('span').innerText = (stdWeight * length / 1000 * qty).toFixed(2);
+        return;
+    }
+
+    const material = select.value;
+    const dim1 = parseFloat(row.cells[1].querySelector('input').value) || 0;
+    const dim2 = parseFloat(row.cells[2].querySelector('input').value) || 0;
+    const thk  = parseFloat(row.cells[3].querySelector('input').value) || 0;
+    let weight = 0;
+
+    switch(material){
+        case 'RHS/SHS':
+            weight = ((dim1*dim2 - (dim1-2*thk)*(dim2-2*thk))/1000000)*density*length/1000;
+            break;
+        case 'CHS':
+            weight = (((Math.PI * Math.pow(dim1/2,2)) - (Math.PI*Math.pow((dim1-thk*2)/2,2)))/1000000)*density*length/1000;
+            break;
+        case 'PLATE':
+            weight = (dim1*dim2*thk/1000000000)*density*length/1000;
+            break;
+        case 'ROUND BAR':
+            weight = (Math.PI*Math.pow(dim1/2,2)/1000000)*density*length/1000;
+            break;
+        case 'FLAT BAR':
+            weight = (dim1*thk/1000/1000)*density*length/1000;
+            break;
+        case 'ANGLE/TEE':
+            weight = ((dim1+dim2-thk)*thk/1000/1000)*density*length/1000;
+            break;
+        case 'CHANNEL':
+            weight = ((dim1+dim2*2-thk*2)*thk/1000/1000)*density*length/1000;
+            break;
+        case 'SQ BAR':
+            weight = (dim1*dim1/1000000)*density*length/1000;
+            break;
+        case 'REBAR':
+            weight = (Math.pow(dim1,2)/162.28*density/7850)*length/1000;
+            break;
+        case 'HEX BAR':
+            weight = (0.006798*Math.pow(dim1,2)*density/7850)*length/1000;
+            break;
+        default:
+            weight = 0;
+    }
+
+    row.cells[6].querySelector('span').innerText = (weight * qty).toFixed(2);
+}
+
+// Download Excel
+function downloadExcel(){
+    let table = document.getElementById('materialTable');
+    let wb = XLSX.utils.table_to_book(table, {sheet:"Sheet1"});
+    XLSX.writeFile(wb, "MaterialWeightList.xlsx");
+}
+
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+});
+</script>
+
+</div>
+</body>
+</html>

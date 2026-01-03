@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Beam Weight Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #eef2f7, #dfe7f1);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 850px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1f2937;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 20px;
+}
+
+label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 6px;
+    display: block;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+}
+
+select:disabled {
+    background: #f1f5f9;
+    cursor: not-allowed;
+}
+
+button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #0077cc, #005fa3);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #005fa3, #004a82);
+}
+
+.result {
+    margin-top: 25px;
+    padding: 14px;
+    background: #f1f5f9;
+    border-left: 5px solid #0077cc;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Beam Weight Calculator (kg/m)</h2>
+
+    <div class="grid">
+
+        <!-- HEB -->
+        <div>
+            <label>HEB</label>
+            <select id="heb" onchange="selectSection(this)">
+                <option value="">Select</option>
+                <option value="20.4">HEB 100</option>
+                <option value="26.7">HEB 120</option>
+                <option value="33.7">HEB 140</option>
+                <option value="42.6">HEB 160</option>
+                <option value="51.2">HEB 180</option>
+                <option value="61.3">HEB 200</option>
+                <option value="71.3">HEB 220</option>
+                <option value="83.2">HEB 240</option>
+                <option value="93">HEB 260</option>
+                <option value="103">HEB 280</option>
+                <option value="117">HEB 300</option>
+                <option value="127">HEB 320</option>
+                <option value="134">HEB 340</option>
+                <option value="146">HEB 360</option>
+                <option value="171">HEB 400</option>
+                <option value="211">HEB 450</option>
+                <option value="245">HEB 500</option>
+                <option value="291">HEB 550</option>
+                <option value="337">HEB 600</option>
+                <option value="385">HEB 650</option>
+            </select>
+        </div>
+
+        <!-- IPN -->
+        <div>
+            <label>IPN</label>
+            <select id="ipn" onchange="selectSection(this)">
+                <option value="">Select</option>
+                <option value="6">IPN 80</option>
+                <option value="8.1">IPN 100</option>
+                <option value="10.4">IPN 120</option>
+                <option value="12.9">IPN 140</option>
+                <option value="15.8">IPN 160</option>
+                <option value="18.8">IPN 180</option>
+                <option value="22.4">IPN 200</option>
+                <option value="26.2">IPN 220</option>
+                <option value="30.7">IPN 240</option>
+                <option value="35.8">IPN 260</option>
+                <option value="41">IPN 280</option>
+                <option value="46.2">IPN 300</option>
+                <option value="52.7">IPN 320</option>
+                <option value="59.4">IPN 340</option>
+                <option value="66.3">IPN 360</option>
+                <option value="73.4">IPN 380</option>
+                <option value="81">IPN 400</option>
+                <option value="92">IPN 450</option>
+                <option value="103">IPN 500</option>
+                <option value="116">IPN 550</option>
+            </select>
+        </div>
+
+        <!-- IPE -->
+        <div>
+            <label>IPE</label>
+            <select id="ipe" onchange="selectSection(this)">
+                <option value="">Select</option>
+                <option value="6">IPE 80</option>
+                <option value="8.1">IPE 100</option>
+                <option value="10.4">IPE 120</option>
+                <option value="12.9">IPE 140</option>
+                <option value="15.8">IPE 160</option>
+                <option value="18.8">IPE 180</option>
+                <option value="22.4">IPE 200</option>
+                <option value="26.2">IPE 220</option>
+                <option value="30.7">IPE 240</option>
+                <option value="36.2">IPE 270</option>
+                <option value="42.2">IPE 300</option>
+                <option value="49.1">IPE 330</option>
+                <option value="57.1">IPE 360</option>
+                <option value="66.3">IPE 400</option>
+                <option value="77.6">IPE 450</option>
+                <option value="90.7">IPE 500</option>
+                <option value="106">IPE 550</option>
+                <option value="122">IPE 600</option>
+            </select>
+        </div>
+
+        <!-- HEA -->
+        <div>
+            <label>HEA</label>
+            <select id="hea" onchange="selectSection(this)">
+                <option value="">Select</option>
+                <option value="16.7">HEA 100</option>
+                <option value="20.4">HEA 120</option>
+                <option value="25.3">HEA 140</option>
+                <option value="30.4">HEA 160</option>
+                <option value="35.5">HEA 180</option>
+                <option value="42.3">HEA 200</option>
+                <option value="50.5">HEA 220</option>
+                <option value="60.3">HEA 240</option>
+                <option value="68.2">HEA 260</option>
+                <option value="76.4">HEA 280</option>
+                <option value="88.3">HEA 300</option>
+                <option value="97.6">HEA 320</option>
+                <option value="105">HEA 340</option>
+                <option value="115">HEA 360</option>
+                <option value="134">HEA 400</option>
+                <option value="159">HEA 450</option>
+                <option value="187">HEA 500</option>
+                <option value="219">HEA 550</option>
+                <option value="252">HEA 600</option>
+                <option value="289">HEA 650</option>
+            </select>
+        </div>
+
+    </div>
+
+    <button onclick="resetAll()">Reset</button>
+
+    <div class="result">
+        Selected Weight: <span id="weight">0</span> kg/m
+    </div>
+</div>
+
+<script>
+const selects = ["heb", "ipn", "ipe", "hea"];
+
+function selectSection(el) {
+    document.getElementById("weight").innerText =
+        el.value === "" ? "0" : parseFloat(el.value).toFixed(2);
+
+    if (el.value !== "") {
+        selects.forEach(id => {
+            if (id !== el.id) {
+                document.getElementById(id).disabled = true;
+            }
+        });
+    }
+}
+
+function resetAll() {
+    selects.forEach(id => {
+        const s = document.getElementById(id);
+        s.disabled = false;
+        s.selectedIndex = 0;
+    });
+    document.getElementById("weight").innerText = "0";
+}
+
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+});
+
+
+</script>
+
+</body>
+</html>
