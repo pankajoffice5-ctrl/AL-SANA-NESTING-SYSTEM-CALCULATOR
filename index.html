@@ -3,161 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AL SANA Eng | Nesting Calculator System</title>
+<title>AL SANA Nesting | Calculator System</title>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
 <style>
-/* Reset & Base */
-* {
-  box-sizing: border-box;
-  font-family: "Segoe UI", Roboto, Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-}
+/* ===== RESET & BASE ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Roboto, Arial, sans-serif; }
 
 body {
-  background: linear-gradient(135deg, #e3f2fd, #f1f8e9);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   min-height: 100vh;
-  padding: 20px;
-}
-
-/* Container */
-.container {
-  background: #ffffff;
-  width: 100%;
-  max-width: 480px;
-  border-radius: 20px;
-  padding: 30px 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-}
-
-/* Header */
-.header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-.header h1 {
-  font-size: 24px;
-  color: #1565c0;
-  margin-bottom: 6px;
-  letter-spacing: 0.5px;
-}
-.header p {
-  font-size: 14px;
-  color: #555;
-}
-
-/* Button Group */
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* Buttons */
-button {
-  width: 100%;
-  padding: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  padding: 30px 15px;
 }
 
-/* Colors */
-.btn-primary { background: #1976d2; color: #fff; }
-.btn-secondary { background: #455a64; color: #fff; }
+/* ===== DOWNLOAD ICON ===== */
+.download-icon {
+  position: fixed; top: 16px; right: 16px; width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; color: #ffffff; background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px); cursor: pointer; transition: all 0.2s ease; z-index: 1000;
+}
+.download-icon:hover { background: rgba(255,255,255,0.18); transform: translateY(-1px); }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+/* ===== CONTAINER ===== */
+.container {
+  background: #ffffff; width: 100%; max-width: 480px;
+  border-radius: 22px; padding: 30px 25px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  margin-bottom: 20px;
 }
 
-/* Footer */
-footer {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 12px;
-  color: #777;
-}
+.header { text-align: center; margin-bottom: 30px; }
+.header h1 { font-size: 24px; color: #1565c0; margin-bottom: 6px; }
+.header p { font-size: 14px; color: #666; }
 
-/* Mobile Responsiveness */
+/* ===== BUTTONS ===== */
+.button-group { display: flex; flex-direction: column; gap: 14px; }
+button {
+  width: 100%; padding: 14px; font-size: 15px; font-weight: 600;
+  border-radius: 14px; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.25s ease;
+}
+.btn-primary { background: linear-gradient(135deg, #1976d2, #0d47a1); color: #fff; }
+button:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,0.25); }
+
+/* ===== MODAL STYLE (For Privacy/About) ===== */
+.modal {
+  display: none; position: fixed; z-index: 2000; left: 0; top: 0;
+  width: 100%; height: 100%; background-color: rgba(0,0,0,0.6);
+}
+.modal-content {
+  background-color: #fefefe; margin: 10% auto; padding: 25px;
+  border-radius: 15px; width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto;
+}
+.close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+.modal-content h2 { margin-bottom: 15px; color: #1565c0; }
+.modal-content p { font-size: 14px; line-height: 1.6; color: #444; margin-bottom: 10px; }
+
+/* ===== FOOTER ===== */
+footer { text-align: center; margin-top: 10px; font-size: 12px; color: #fff; opacity: 0.8; }
+.footer-links { margin-bottom: 10px; }
+.footer-links span { cursor: pointer; text-decoration: underline; margin: 0 10px; }
+
 @media (max-width: 480px) {
   .container { padding: 25px 20px; }
   .header h1 { font-size: 22px; }
-  .header p { font-size: 13px; }
-  button { font-size: 14px; padding: 12px; }
 }
 </style>
 </head>
+
 <body>
 
-<div class="container">
+<a href="eSmart_Calculator.apk" download class="download-icon" title="Download App">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M12 3v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <path d="M8 11l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</a>
 
+<div class="container">
   <div class="header">
-    <h1>AL SANA Eng</h1>
-    <p>Nesting Calculator System</p>
+    <h1>Al SANA SMART Calc system</h1>
+    <p>Nesting & Estimation Calculator System</p>
   </div>
 
   <div class="button-group">
-    <button class="btn-secondary" onclick="openPage('manual.html')">
-      ● Add Manual Table-Nesting
-    </button>
+    <button class="btn-primary" onclick="openPage('estimation.html')">📊 Metal Estimation</button>
+    <button class="btn-primary" onclick="openPage('nesting.html')">● Plate/Pipes Nesting</button>
+    <button class="btn-primary" onclick="window.location.href='https://script.google.com/macros/s/AKfycbyGYVfY4x6HO3NNddZ1IdyzuVbJjLyoGRRyTiEbHBEoAz63MDB0_nntt6-VwKgHvv-G/exec'">💰 Invetory</button>     
+    <button class="btn-primary" onclick="window.location.href='https://pankajoffice5-ctrl.github.io/sitemeasurment/'">💰 Al Saleh Site Mea.</button> 
+    <button class="btn-primary" onclick="openPage('for_diagonal.html')">⊿ Diagonal Calculator</button>
 
-    <button class="btn-secondary" onclick="openPage('COPY PASTE.html')">
-      📋 Non Joint - Copy-Paste from Excel
-    </button>
-
-    <button class="btn-secondary" onclick="openPage('COPY PASTE JOINT.html')">
-      📋 Joint Copy-Paste from Excel
-    </button>
-
-    <button class="btn-primary" onclick="openPage('for_diagonal.html')">
-      ⊿ Diagonal Calculator
-    </button>
-
-    <button class="btn-primary" onclick="openPage('METAL WT.html')">
-      ⚖️ Metal Weight Calculator
-    </button>
-
-    <button class="btn-primary" onclick="openPage('BEAM.html')">
-      ⚖️ Steel Beam Weight Calculator
-    </button>
-
-    <button class="btn-primary" onclick="openPage('METAL LIST.html')">
-      📋Make Metal List
-    </button>
-
-    <button class="btn-primary" onclick="openPage('CALCULATOR.html')">
-      🖩 Match Calculator
-    </button>
   </div>
+</div>
 
-  <footer>
-    © AL SANA Engineering · Internal Use Only
-  </footer>
+<footer>
+  <div class="footer-links">
+    <span onclick="showModal('aboutModal')">About Us</span> | 
+    <span onclick="showModal('privacyModal')">Privacy Policy</span>
+  </div>
+  © 2026 AL SANA Calc · All Rights Reserved
+</footer>
 
+<div id="aboutModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="hideModal('aboutModal')">&times;</span>
+    <h2>About Us</h2>
+    <p>Welcome to <strong>AL SANA Calc</strong>. We provide a comprehensive suite of professional engineering and nesting tools designed to simplify complex calculations for metal fabrication and industrial estimation.</p>
+    <p>Our mission is to provide accurate, fast, and easy-to-use calculation tools for professionals worldwide.</p>
+  </div>
+</div>
+
+<div id="privacyModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="hideModal('privacyModal')">&times;</span>
+    <h2>Privacy Policy</h2>
+    <p><strong>Effective Date:</strong> January 2025</p>
+    <p>At AL SANA Calc, we prioritize your privacy. This policy explains how we handle your data.</p>
+    <p><strong>1. Information Collection:</strong> We do NOT collect any personal information, login data, or location tracking. All calculations are performed locally on your device.</p>
+    <p><strong>2. Cookies & Advertising:</strong> We use Google AdSense to serve ads. Google may use cookies to serve ads based on your prior visits to our website.</p>
+    <p><strong>3. Third-Party Links:</strong> Our site contains links to other pages. We are not responsible for the privacy practices of external sites.</p>
+    <p><strong>4. Contact:</strong> For any questions, please reach out via our official support channels.</p>
+  </div>
 </div>
 
 <script>
-function openPage(page) {
-  window.location.href = page;
+function openPage(page) { window.location.href = page; }
+
+function showModal(id) { document.getElementById(id).style.display = "block"; }
+function hideModal(id) { document.getElementById(id).style.display = "none"; }
+
+// Close modal if clicking outside of it
+window.onclick = function(event) {
+  if (event.target.className === 'modal') {
+    event.target.style.display = "none";
+  }
 }
 
-// Disable right-click
-document.addEventListener("contextmenu", function(e) {
-  e.preventDefault();
-});
+// Disable right-click for AdSense security
+document.addEventListener("contextmenu", function(e) { e.preventDefault(); });
 </script>
+
 </body>
 </html>
