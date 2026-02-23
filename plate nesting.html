@@ -120,9 +120,8 @@
 let PLATES = [];
 let db;
 
-// --- DATABASE LOGIC ---
 function initDB() {
-    const request = indexedDB.open("NestingProDB_V3", 1);
+    const request = indexedDB.open("NestingProDB_V4", 1);
     request.onupgradeneeded = (e) => {
         db = e.target.result;
         db.createObjectStore("settings", { keyPath: "id" });
@@ -137,19 +136,16 @@ function initDB() {
 function saveData() {
     const transaction = db.transaction(["settings"], "readwrite");
     const store = transaction.objectStore("settings");
-    
     let parts = [];
     document.querySelectorAll("#inputTable tbody tr").forEach(row => {
         const ins = row.querySelectorAll("input");
         if(ins[0]) parts.push({ w: ins[0].value, l: ins[1].value, q: ins[2].value });
     });
-
     let stocks = [];
     document.querySelectorAll("#stockTable tbody tr").forEach(row => {
         const ins = row.querySelectorAll("input");
         if(ins[0]) stocks.push({ w: ins[0].value, l: ins[1].value, q: ins[2].value });
     });
-
     store.put({
         id: "currentWork",
         material: document.getElementById("materialType").value,
@@ -158,7 +154,6 @@ function saveData() {
         parts: parts,
         stocks: stocks
     });
-    document.getElementById("status").innerText = "✔ Auto-Saved";
 }
 
 function loadSavedData() {
@@ -188,27 +183,16 @@ function clearData() {
     }
 }
 
-// --- TABLE CONTROLS ---
 function addStockRow(w='', l='', q='') {
     const tbody = document.querySelector("#stockTable tbody");
     const row = tbody.insertRow(-1);
-    row.innerHTML = `<td><input type="number" value="${w}"></td>
-                     <td><input type="number" value="${l}"></td>
-                     <td><input type="number" value="${q}"></td>
-                     <td><button class="btn-icon btn-rem" onclick="this.closest('tr').remove()">❌</button></td>`;
+    row.innerHTML = `<td><input type="number" value="${w}"></td><td><input type="number" value="${l}"></td><td><input type="number" value="${q}"></td><td><button class="btn-icon btn-rem" onclick="this.closest('tr').remove()">❌</button></td>`;
 }
 
 function addPartRow(w='', l='', q='') {
     const tbody = document.querySelector("#inputTable tbody");
     const row = tbody.insertRow(-1);
-    row.innerHTML = `<td><input type="number" value="${w}" oninput="updateWeights()"></td>
-                     <td><input type="number" value="${l}" oninput="updateWeights()"></td>
-                     <td><input type="number" value="${q}" oninput="updateWeights()"></td>
-                     <td class="weight-col">0.00</td>
-                     <td>
-                        <button class="btn-icon btn-clone" onclick="clonePart(this)">📋</button>
-                        <button class="btn-icon btn-rem" onclick="this.closest('tr').remove(); updateWeights();">❌</button>
-                     </td>`;
+    row.innerHTML = `<td><input type="number" value="${w}" oninput="updateWeights()"></td><td><input type="number" value="${l}" oninput="updateWeights()"></td><td><input type="number" value="${q}" oninput="updateWeights()"></td><td class="weight-col">0.00</td><td><button class="btn-icon btn-clone" onclick="clonePart(this)">📋</button><button class="btn-icon btn-rem" onclick="this.closest('tr').remove(); updateWeights();">❌</button></td>`;
     updateWeights();
 }
 
@@ -238,7 +222,6 @@ function updateWeights() {
     });
 }
 
-// --- NESTING LOGIC ---
 function optimize() {
     const kerf = parseFloat(document.getElementById("bladeSize").value);
     const thick = parseFloat(document.getElementById("thickness").value);
@@ -248,7 +231,6 @@ function optimize() {
     let stockPool = [];
     let grossWeight = 0;
 
-    // Collect Data
     document.querySelectorAll("#inputTable tbody tr").forEach(row => {
         const ins = row.querySelectorAll("input");
         const w = parseFloat(ins[0].value), l = parseFloat(ins[1].value), q = parseInt(ins[2].value);
@@ -269,165 +251,133 @@ function optimize() {
     if (parts.length === 0 || stockPool.length === 0) return alert("Add Stock and Parts first!");
     saveData();
 
-    // Sort parts by height (longest dimension)
-    parts.sort((a,b) => Math.max(b.d1, b.d2) - Math.max(a.d1, a.d2));
-    
-    // Sort stock
+    // Sort parts by area to help fitting
+    parts.sort((a,b) => (b.d1 * b.d2) - (a.d1 * a.d2));
     stockPool.sort((a,b) => (b.sw * b.sl) - (a.sw * a.sl));
 
     PLATES = [];
     let remainingParts = [...parts];
 
-    // Main Nesting Loop
     for (let stock of stockPool) {
         if (remainingParts.length === 0) break;
-
         let plate = { sw: stock.sw, sl: stock.sl, shelves: [], items: [], usedArea: 0 };
-        let index = 0;
         
-        while (index < remainingParts.length) {
-            let part = remainingParts[index];
-            if (tryFitInPlate(plate, part, kerf)) {
-                remainingParts.splice(index, 1); // Remove part from queue if it fits
+        let i = 0;
+        while (i < remainingParts.length) {
+            if (tryFitInPlateImproved(plate, remainingParts[i], kerf)) {
+                remainingParts.splice(i, 1);
             } else {
-                index++; // Skip to next part
+                i++;
             }
         }
-        
         if (plate.items.length > 0) PLATES.push(plate);
     }
 
-    if (remainingParts.length > 0) alert(`${remainingParts.length} parts couldn't fit. You need more stock!`);
-
+    if (remainingParts.length > 0) alert(`${remainingParts.length} parts couldn't fit.`);
     render(grossWeight);
     document.getElementById("pdfBtn").style.display = "block";
 }
 
-function tryFitInPlate(plate, part, kerf) {
+function tryFitInPlateImproved(plate, part, kerf) {
     const sw = plate.sw;
     const sl = plate.sl;
-    
-    const orient1 = { w: part.d1, l: part.d2 };
-    const orient2 = { w: part.d2, l: part.d1 };
-    const orients = [orient1, orient2];
+    const orients = [{ w: part.d1, l: part.d2 }, { w: part.d2, l: part.d1 }];
 
-    // 1. Try fitting into an existing shelf
+    // 1. Try fitting in existing shelves
     for (let shelf of plate.shelves) {
+        let bestOrient = null;
         for (let o of orients) {
             if (o.w <= shelf.freeW && o.l <= shelf.h) {
-                plate.items.push({ x: sw - shelf.freeW, y: shelf.y, w: o.w, l: o.l });
-                shelf.freeW -= (o.w + kerf);
-                plate.usedArea += (o.w * o.l);
-                return true;
+                // If this orientation matches shelf height better, prioritize it
+                if (!bestOrient || Math.abs(o.l - shelf.h) < Math.abs(bestOrient.l - shelf.h)) {
+                    bestOrient = o;
+                }
+            }
+        }
+        if (bestOrient) {
+            plate.items.push({ x: sw - shelf.freeW, y: shelf.y, w: bestOrient.w, l: bestOrient.l });
+            shelf.freeW -= (bestOrient.w + kerf);
+            plate.usedArea += (bestOrient.w * bestOrient.l);
+            return true;
+        }
+    }
+
+    // 2. Try creating a new shelf - CHOOSE ORIENTATION THAT FITS MORE ITEMS SIDE-BY-SIDE
+    let currentY = plate.shelves.reduce((sum, s) => sum + s.h + kerf, 0);
+    let bestShelfOrient = null;
+    let maxFitCount = -1;
+
+    for (let o of orients) {
+        if (o.l <= (sl - currentY) && o.w <= sw) {
+            // Calculate how many of this part fit in the width with this orientation
+            let fitCount = Math.floor(sw / (o.w + kerf));
+            if (fitCount > maxFitCount) {
+                maxFitCount = fitCount;
+                bestShelfOrient = o;
             }
         }
     }
 
-    // 2. Try creating a new shelf
-    let currentY = plate.shelves.reduce((sum, s) => sum + s.h + kerf, 0);
-    for (let o of orients) {
-        if (o.l <= (sl - currentY) && o.w <= sw) {
-            let newShelf = { y: currentY, h: o.l, freeW: sw - (o.w + kerf) };
-            plate.shelves.push(newShelf);
-            plate.items.push({ x: 0, y: currentY, w: o.w, l: o.l });
-            plate.usedArea += (o.w * o.l);
-            return true;
-        }
+    if (bestShelfOrient) {
+        let newShelf = { y: currentY, h: bestShelfOrient.l, freeW: sw - (bestShelfOrient.w + kerf) };
+        plate.shelves.push(newShelf);
+        plate.items.push({ x: 0, y: currentY, w: bestShelfOrient.w, l: bestShelfOrient.l });
+        plate.usedArea += (bestShelfOrient.w * bestShelfOrient.l);
+        return true;
     }
 
     return false;
 }
 
-// --- RENDERING ---
 function render(grossW) {
     const res = document.getElementById("results");
     const totalUsed = PLATES.reduce((a,b) => a + b.usedArea, 0);
     const totalStock = PLATES.reduce((a,b) => a + (b.sw * b.sl), 0);
-    
-    res.innerHTML = `
-        <div class="summary-box">
-            <div><strong>Plates Used:</strong> ${PLATES.length}</div>
-            <div><strong>Avg Efficiency:</strong> ${((totalUsed/totalStock)*100).toFixed(1)}%</div>
-            <div style="color:#1a73e8;"><strong>Total Project Weight:</strong> ${grossW.toFixed(2)} kg</div>
-        </div>
-    `;
+    res.innerHTML = `<div class="summary-box"><div><strong>Plates Used:</strong> ${PLATES.length}</div><div><strong>Avg Efficiency:</strong> ${((totalUsed/totalStock)*100).toFixed(1)}%</div><div style="color:#1a73e8;"><strong>Total Weight:</strong> ${grossW.toFixed(2)} kg</div></div>`;
     
     PLATES.forEach((p, i) => {
         const div = document.createElement("div");
         div.className = "plate-card";
-        div.innerHTML = `<strong>Map #${i+1} — Sheet Size: ${p.sw}mm x ${p.sl}mm</strong>`;
-        
+        div.innerHTML = `<strong>Map #${i+1} — Sheet: ${p.sw}x${p.sl}mm</strong>`;
         const canv = document.createElement("canvas");
         const scale = 1100 / Math.max(p.sw, p.sl);
         canv.width = p.sw * scale; canv.height = p.sl * scale;
         const ctx = canv.getContext("2d");
-        
         ctx.fillStyle = "#fff"; ctx.fillRect(0,0,canv.width,canv.height);
-        
         p.items.forEach(it => {
             ctx.fillStyle = "#4a90e2"; ctx.globalAlpha = 0.8;
             ctx.fillRect(it.x*scale, it.y*scale, it.w*scale, it.l*scale);
-            ctx.strokeStyle = "#2c3e50"; ctx.globalAlpha = 1; ctx.lineWidth = 2;
+            ctx.strokeStyle = "#2c3e50"; ctx.globalAlpha = 1; ctx.lineWidth = 1;
             ctx.strokeRect(it.x*scale, it.y*scale, it.w*scale, it.l*scale);
-            ctx.fillStyle = "#fff"; ctx.font = "bold 12px Arial";
-            ctx.textAlign = "center";
-            if(it.w * scale > 40) ctx.fillText(`${it.w}x${it.l}`, (it.x + it.w/2)*scale, (it.y + it.l/2)*scale + 5);
+            ctx.fillStyle = "#fff"; ctx.font = "bold 11px Arial"; ctx.textAlign = "center";
+            if(it.w * scale > 30) ctx.fillText(`${it.w}x${it.l}`, (it.x + it.w/2)*scale, (it.y + it.l/2)*scale + 5);
         });
-        
         div.appendChild(canv);
         res.appendChild(div);
     });
 }
 
-// --- PDF FIX HERE ---
 async function downloadPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const canvases = document.querySelectorAll("canvas");
-    
-    // Get Thickness and Material Name for the filename
     const thickness = document.getElementById("thickness").value;
     const materialSelect = document.getElementById("materialType");
     const materialName = materialSelect.options[materialSelect.selectedIndex].text.split(' (')[0]; 
     
-    const pageWidth = 190;
-    const pageHeight = 270;
-
     for (let i = 0; i < canvases.length; i++) {
         if (i > 0) doc.addPage();
-
         const title = document.querySelectorAll(".plate-card strong")[i].innerText;
-        doc.setFontSize(14);
-        doc.text(title, 10, 15);
-
+        doc.setFontSize(14); doc.text(title, 10, 15);
         const canvas = canvases[i];
         const imgData = canvas.toDataURL("image/png");
-        
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = imgWidth / imgHeight;
-
-        let finalW = pageWidth;
-        let finalH = finalW / ratio;
-
-        if (finalH > pageHeight) {
-            finalH = pageHeight;
-            finalW = finalH * ratio;
-        }
-
+        const ratio = canvas.width / canvas.height;
+        let finalW = 190, finalH = 190 / ratio;
+        if (finalH > 260) { finalH = 260; finalW = 260 * ratio; }
         doc.addImage(imgData, 'PNG', 10, 25, finalW, finalH);
     }
-    
-    // Filename will look like: "Mild Steel_5mm_Cutting_Plan.pdf"
     doc.save(`${materialName}_${thickness}mm_Cutting_Plan.pdf`);
 }
-
-</script>
-
-<script>
-document.addEventListener("contextmenu", function(e) {
-  e.preventDefault();
-});
 </script>
 </body>
 </html>
