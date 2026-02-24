@@ -1,89 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>AL SANA INTERNAL: Integrated Edition</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        :root { --primary: #0f172a; --accent: #2563eb; --procurement: #b45309; --success: #059669; --purple: #7c3aed; --bg: #f1f5f9; --border: #cbd5e1; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; font-size: 11px; color: #334155; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 30px; }
-        .header-box { display: flex; justify-content: space-between; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
-        h1 { margin: 0; color: var(--primary); font-size: 22px; }
-        h2 { background: var(--primary); color: white; padding: 8px 15px; border-radius: 4px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; margin-top: 25px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        th { background: #f8fafc; border: 1px solid var(--border); padding: 8px 4px; font-weight: 700; text-align: center; text-transform: uppercase; }
-        td { border: 1px solid var(--border); padding: 4px; text-align: center; }
-        input, select { width: 100%; border: 1px solid #cbd5e1; padding: 5px; border-radius: 3px; font-size: 11px; box-sizing: border-box; }
-        .btn { padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; font-size: 11px; transition: 0.2s; }
-        .btn-add { background: var(--success); color: white; }
-        .btn-opt { background: var(--accent); color: white; padding: 10px 20px; }
-        .btn-import { background: var(--purple); color: white; padding: 8px 15px; margin-bottom: 10px; }
-        .btn-del { color: #ef4444; background: none; font-size: 14px; border:none; cursor: pointer; }
-        .summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
-        .summary-card { background: var(--primary); color: white; padding: 12px; border-radius: 6px; text-align: center; }
-        .summary-card span { display: block; font-size: 18px; font-weight: 700; color: #38bdf8; margin-top: 5px; }
-        .grid-half { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        canvas { display: block; max-width: 100%; height: auto; border: 1px solid #2c3e50; margin-top: 15px; background: #fff; }
-        .plate-card { background: white; border: 1px solid #ddd; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
-        .bar-container { background: #fff; border: 1px solid #cbd5e1; margin-bottom: 8px; padding: 8px; border-radius: 4px; }
-        .bar-header { font-weight: bold; color: var(--primary); margin-bottom: 4px; display: flex; justify-content: space-between; }
-        .bar-breakdown { color: var(--accent); font-family: monospace; font-size: 12px; font-weight: bold; }
-        @media print { .no-print { display: none; } .container { box-shadow: none; border: none; } }
-        .red-input { background: #fff0f0 !important; border: 2px solid #ff4d4d !important; transition: 0.3s; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AL SANA INTERNAL: Integrated Edition</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    :root { --primary: #0f172a; --accent: #2563eb; --procurement: #b45309; --success: #059669; --purple: #7c3aed; --bg: #f1f5f9; --border: #cbd5e1; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; font-size: 13px; color: #334155; }
+    .container { max-width: 1400px; margin: 0 auto; background: white; padding: 22px; border-radius: 8px; box-shadow: 0 10px 15px rgba(2,6,23,0.06); margin-bottom: 24px; }
+    .header-box { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:14px; gap:12px; }
+    h1 { margin:0; color:var(--primary); font-size:20px; }
+    h2 { background:var(--primary); color:#fff; padding:8px 14px; border-radius:6px; font-size:14px; display:flex; align-items:center; justify-content:space-between; margin-top:22px; }
+    table { width:100%; border-collapse:collapse; margin-top:6px; }
+    th { background:#f8fafc; border:1px solid var(--border); padding:8px 6px; text-align:center; font-weight:700; font-size:12px; text-transform:uppercase; }
+    td { border:1px solid var(--border); padding:6px; text-align:center; font-size:13px; }
+    input,select { width:100%; padding:7px; border-radius:6px; border:1px solid var(--border); box-sizing:border-box; font-size:13px; background:#fff; }
+    .btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+    .btn-add { background:var(--success); color:#fff; }
+    .btn-import { background:var(--purple); color:#fff; }
+    .btn-opt { background:var(--accent); color:#fff; }
+    .btn-del { background:none; border:none; color:#ef4444; font-size:16px; cursor:pointer; }
+    .grid-half { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .table-wrap { overflow-x:auto; }
+    .plate-card { width:100%; padding:15px; margin-bottom:20px; border:1px solid #d1d5db; background:#fff; border-radius:8px; page-break-inside:avoid; }
+    .plate-card b { font-size:16px; }
+    .plate-result-sheet { width:100%; margin-top:20px; }
+    canvas { display:block; max-width:100%; height:auto; border-radius:6px; background:#f8fafc; border:1px solid #9ca3af; }
+    .summary-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-top:16px; }
+    .summary-card { background:var(--primary); color:#fff; padding:12px; border-radius:8px; text-align:center; }
+    .summary-card span { display:block; font-weight:800; font-size:18px; margin-top:6px; color:#38bdf8; }
+    .header-table th, .header-table td { border:1px solid #eef6ff; background:#fbfdff; padding:8px; }
+    #pResult { max-height:none; overflow:visible; padding:8px; background:#f8fafc; border:1px solid #e6eef6; border-radius:6px; }
+    #plateOutput { margin-top:8px; padding:10px; border-radius:6px; background:#f8fffa; border:1px solid #e6f7ef; }
+    @media print { .no-print{display:none;} body{margin:0;} .plate-card{border:none;} canvas{border:1px solid #000;} }
+    .red-input { background:#fff0f0 !important; border:2px solid #ff4d4d !important; transition:0.3s; }
+    .buy-qty, .wt-cell, .sa-cell, .waste-cell, .subt { display:inline-block; padding:4px 8px; border-radius:6px; background:#f8fafc; font-weight:700; color:var(--primary); }
+  </style>
 </head>
 <body onload="initIndexedDB()">
 
-<div class="container" id="printableArea">
+  <div class="container">
     <div class="header-box">
-        <div><h1>AL SANA INTERNAL ESTIMATOR</h1></div> <a href="index.html">🏠 Home</a> <button class="btn no-print" style="background: #166534; color: white;" onclick="exportToExcel()">
-    📊 Download Excel
-</button>
-        <div style="text-align:right;">
-            <table style="width: auto; float: right;">
-                <tr>
-                    <td>Metal (AED/kg)</td><td><input type="number" id="rateMetal" value="3.50" oninput="calculateAll()"></td>
-                    <td>Paint (AED/m²)</td><td><input type="number" id="rateSurface" value="85.00" oninput="calculateAll()"></td>
-                    <td>Galv (AED/kg)</td><td><input type="number" id="rateGalv" value="2.20" oninput="calculateAll()"></td>
-                </tr>
-            </table>
+      <div>
+        <h1>AL SANA INTERNAL ESTIMATOR</h1>
+        <div style="font-size:12px;color:#475569">Integrated Edition</div>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:10px; align-items:center;">
+          <div style="font-weight:700; color:#475569; font-size:13px;">Metal (AED/kg)</div>
+          <input id="rateMetal" type="number" value="3.50" style="width:100px" oninput="calculateAll()" />
+          <div style="font-weight:700; color:#475569; font-size:13px;">Paint (AED/m²)</div>
+          <input id="rateSurface" type="number" value="85.00" style="width:100px" oninput="calculateAll()"/>
+          <div style="font-weight:700; color:#475569; font-size:13px;">Galv (AED/kg)</div>
+          <input id="rateGalv" type="number" value="2.20" style="width:100px" oninput="calculateAll()"/>
         </div>
+
+        <a href="index.html" style="text-decoration:none; color:var(--primary); font-weight:800">🏠 Home</a>
+        <button class="btn" style="background:#166534; color:#fff" onclick="exportToExcel()">📊 Download Excel</button>
+      </div>
     </div>
 
-<h2>1. PROJECT ESTIMATION 
-    <button class="btn btn-add no-print" onclick="addRow('mainBody')">+ Add Item</button>
-</h2>
+    <!-- horizontal header inputs -->
+    <div style="margin-top:12px;">
+      <table class="header-table" role="presentation">
+        <thead>
+          <tr>
+            <th>Date</th>           
+            <th>Revision (REV)</th>
+            <th>Estimator (By)</th>
+            <th>Customer</th>
+            <th>Project</th>
+            <th>Material Grade</th>
+            <th>Anchor / Finish</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input id="inputDate" type="date" /></td>           
+            <td><input id="inputRev" value="R0" /></td>
+            <td><input id="inputBy" value="PANKAJ" /></td>
+            <td><input id="inputCust" value="XXXX" /></td>
+            <td><input id="inputProject" value="XXXX" /></td>
+            <td><input id="inputGrade" value="S275 JR" /></td>
+            <td><input id="inputBolt" value="GI · HDG + Painting" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-<table>
-<thead>
-<tr>
-    <th style="width:14%">Description</th>
-    <th style="width:12%">Profile</th>
-    <th style="width:8%">Material</th>
-    <th>D1</th>
-    <th>D2</th>
-    <th>Thk</th>
-    <th>L (mm)</th>
-    <th>Qty</th>
-    <th style="background:#fff7ed">Stock Size</th>
-    <th style="background:#fff7ed">Mode (Truncating/Roundup)</th>
-    <th style="background:#fff7ed">Buy Qty</th>
-    <th>WT (kg)</th>
-    <th>SURF (m²)</th>
-    <th>Wastage</th>
-    <th class="no-print"></th>
-</tr>
-</thead>
+    <h2>1. PROJECT ESTIMATION
+      <button class="btn btn-add no-print" onclick="addRow('mainBody')">+ Add Item</button>
+    </h2>
 
-    <tbody id="mainBody"></tbody>
-</table>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:14%">Description</th>
+            <th style="width:12%">Profile</th>
+            <th style="width:8%">Material</th>
+            <th>D1</th><th>D2</th><th>Thk</th><th>L (mm)</th><th>Qty</th>
+            <th style="background:#fff7ed">Stock Size</th><th style="background:#fff7ed">Mode</th><th style="background:#fff7ed">Buy Qty</th>
+            <th>WT (kg)</th><th>SURF (m²)</th><th>Wastage</th><th class="no-print"></th>
+          </tr>
+        </thead>
+        <tbody id="mainBody"></tbody>
+      </table>
+    </div>
 
-    <div class="grid-half" style="margin-top:20px;">
-        <div>
+    <div class="grid-half" style="margin-top:18px;">
+<div>
             <h2>2. CONSUMABLES & SERVICES <button class="btn btn-add no-print" onclick="addGen('opsBody1')">+</button></h2>
             <table>
                 <thead><tr><th>Description</th><th>Rate</th><th>Qty</th><th>Total</th><th class="no-print"></th></tr></thead>
@@ -149,157 +181,344 @@
         </div>
     </div>
 
-    <div class="summary-grid">
-        <div class="summary-card"><small>TOTAL WEIGHT</small><span id="totWt">0 kg</span></div>
-        <div class="summary-card"><small>MATERIAL COST</small><span id="totMat">0.00</span></div>
-        <div class="summary-card"><small>PAINTING COST</small><span id="totPaint">0.00</span></div>
-        <div class="summary-card"><small>GALVANIZING</small><span id="totGalv">0.00</span></div>
-        <div class="summary-card" style="background:#059669;"><small>GRAND TOTAL</small><span id="grandTotal">0.00</span></div>
+    <div class="summary-grid" style="margin-top:18px;">
+      <div class="summary-card"><small>TOTAL WEIGHT</small><span id="totWt">0 kg</span></div>
+      <div class="summary-card"><small>MATERIAL COST</small><span id="totMat">0.00</span></div>
+      <div class="summary-card"><small>PAINTING COST</small><span id="totPaint">0.00</span></div>
+      <div class="summary-card"><small>GALVANIZING</small><span id="totGalv">0.00</span></div>
+      <div class="summary-card" style="background:#059669"><small>GRAND TOTAL</small><span id="grandTotal">0.00</span></div>
     </div>
-</div>
+  </div>
 
-<div class="container" style="border-top: 5px solid var(--accent);">
+  <!-- Linear cutting -->
+  <div class="container" style="border-top:5px solid var(--accent);">
     <h2 style="background:var(--accent)">4. LINEAR CUTTING OPTIMIZER (1D)</h2>
-    <div style="background:#f0f7ff; padding:10px; margin-bottom:10px; display:flex; gap:20px; align-items:center;">
-        <div>Stock Length: <input type="number" id="linStock" value="6000" style="width:80px"> mm</div>
-        <button class="btn btn-import" onclick="importLinear()">⬇ Import Bars</button>
+    <div style="background:#f0f7ff; padding:10px; display:flex; gap:16px; align-items:center;">
+      <div>Stock Length: <input id="linStock" type="number" value="6000" style="width:90px"/></div>
+      <button class="btn btn-import" onclick="importLinear()">⬇ Import Bars</button>
     </div>
-    <div class="grid-half">
-        <div>
-            <table id="linTable">
-                <thead><tr><th>Profile</th><th>Length</th><th>Qty</th><th></th></tr></thead>
-                <tbody id="linBody"></tbody>
-            </table>
-            <br><button class="btn btn-opt" onclick="runLinearOpt()">⚙ GENERATE BREAKDOWN</button>
-        </div>
-        <div id="linResult" style="padding:15px; background:#f8fafc; border:1px solid #ddd; max-height:400px; overflow-y:auto;"></div>
-    </div>
-</div>
 
-<div class="container" style="border-top: 5px solid var(--purple);">
+    <div class="grid-half" style="margin-top:10px;">
+      <div>
+        <table id="linTable"><thead><tr><th>Profile</th><th>Length</th><th>Qty</th><th></th></tr></thead><tbody id="linBody"></tbody></table>
+        <br/><button class="btn btn-opt" onclick="runLinearOpt()">⚙ GENERATE BREAKDOWN</button>
+      </div>
+      <div id="linResult" style="padding:12px; background:#f8fafc; border:1px solid #ddd; max-height:400px; overflow:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Plate nesting -->
+  <div class="container" style="border-top:5px solid var(--purple);">
     <h2 style="background:var(--purple)">5. PLATE NESTING (WITH SIZE LABELS)</h2>
-    <div style="background:#fdf4ff; padding:10px; margin-bottom:10px; display:flex; gap:20px; align-items:center;">
-        <div>Sheet: <input type="number" id="sw" value="1220" style="width:70px"> x <input type="number" id="sl" value="2440" style="width:70px"></div>
-        <div>Kerf: <input type="number" id="pKerf" value="3" style="width:50px"> mm</div>
-        <button class="btn btn-import" onclick="importPlates()">⬇ Import Plates</button>
+
+    <div style="background:#fdf4ff; padding:10px; display:flex; gap:12px; align-items:center;">
+      <div>Sheet: <input id="sw" type="number" value="1220" style="width:80px"/> x <input id="sl" type="number" value="2440" style="width:80px"/></div>
+      <div>Kerf: <input id="pKerf" type="number" value="3" style="width:70px"/></div>
+      <button class="btn btn-import" onclick="importPlates()">⬇ Import Plates</button>
     </div>
-    <div class="grid-half">
-        <div>
-            <table id="pTable">
-                <thead><tr><th>Width</th><th>Length</th><th>Thk</th><th>Qty</th><th></th></tr></thead>
-                <tbody id="pBody"></tbody>
-            </table>
-            <br><button class="btn btn-opt" style="background:var(--purple)" onclick="runPlateOpt()">⚙ NEST & SHOW SIZES</button>
-        </div>
-        <div id="pResult"></div>
+
+    <div class="grid-half" style="margin-top:10px;">
+      <div>
+        <table id="pTable">
+          <thead><tr><th>Width</th><th>Length</th><th>Thk</th><th>Qty</th><th></th></tr></thead>
+          <tbody id="pBody"></tbody>
+        </table>
+        <br/>
+        <button class="btn btn-opt" style="background:var(--purple)" onclick="runPlateOpt()">⚙ NEST & SHOW SIZES</button>
+      </div>
+
+      <div id="pResult" class="plate-result-sheet"></div>
     </div>
-</div>
+  </div>
+
+  <div class="container" style="border-top:5px solid #059669;">
+    <h2 style="background:#059669">6. PLATE NESTING OUTPUTS</h2>
+    <div id="plateOutput"></div>
+  </div>
 
 <script>
-    const densities = { "Steel": 7850, "Stainless": 8000, "Aluminum": 2700 };
-    const manualShapes = ["CHS", "RHS/SHS", "ROUND BAR", "FLAT BAR", "PLATE", "ANGLE/TEE", "CHANNEL", "SQ BAR", "REBAR", "HEX BAR"];
+  const densities = { "Steel": 7850, "Stainless": 8000, "Aluminum": 2700 };
+  const manualShapes = ["CHS", "RHS/SHS", "ROUND BAR", "FLAT BAR", "PLATE", "ANGLE/TEE", "CHANNEL", "SQ BAR", "REBAR", "HEX BAR"];
 
-let db;
+  let db;
 
-function initIndexedDB() {
+  function initIndexedDB() {
     const req = indexedDB.open("ProFabMasterDB", 1);
-
     req.onupgradeneeded = (e) => {
-        const idb = e.target.result;
-        if (!idb.objectStoreNames.contains("State")) {
-            idb.createObjectStore("State");
-        }
+      const idb = e.target.result;
+      if (!idb.objectStoreNames.contains("State")) idb.createObjectStore("State");
     };
+    req.onsuccess = (e) => { db = e.target.result; loadFromDB(); };
+    req.onerror = () => { console.warn("Database failed. Running without DB."); if (!document.getElementById('mainBody').children.length) addRow('mainBody'); };
+  }
 
-    req.onsuccess = (e) => {
-        db = e.target.result;
-        loadFromDB();
-    };
-
-    req.onerror = () => {
-        console.warn("Database failed. Running without DB.");
-        if (!document.getElementById('mainBody').children.length) addRow('mainBody');
-    };
-}
-
-function saveToDB() {
+  function saveToDB() {
     if (!db) return;
     try {
-        const state = {
-            rates: [
-                document.getElementById('rateMetal').value,
-                document.getElementById('rateSurface').value,
-                document.getElementById('rateGalv').value
-            ],
-            mto: Array.from(document.querySelectorAll('#mainBody tr')).map(tr =>
-                Array.from(tr.querySelectorAll('input, select')).map(i => i.value)
-            ),
-            ops: {}
-        };
-        for (let i = 1; i <= 6; i++) {
-            const tbody = document.getElementById(`opsBody${i}`);
-            if (tbody) {
-                state.ops[`opsBody${i}`] = Array.from(tbody.querySelectorAll('tr')).map(tr => Array.from(tr.querySelectorAll('input')).map(inp => inp.value));
-            }
-        }
-        const tx = db.transaction("State", "readwrite");
-        tx.objectStore("State").put(state, "latest");
-    } catch (err) {
-        console.warn("saveToDB failed:", err);
-    }
-}
+      const state = {
+        rates: [ document.getElementById('rateMetal').value, document.getElementById('rateSurface').value, document.getElementById('rateGalv').value ],
+        mto: Array.from(document.querySelectorAll('#mainBody tr')).map(tr => Array.from(tr.querySelectorAll('input, select')).map(i => i.value)),
+        ops: {}
+      };
+      for (let i = 1; i <= 6; i++) {
+        const tbody = document.getElementById(`opsBody${i}`);
+        if (tbody) state.ops[`opsBody${i}`] = Array.from(tbody.querySelectorAll('tr')).map(tr => Array.from(tr.querySelectorAll('input')).map(inp => inp.value));
+      }
+      const tx = db.transaction("State","readwrite");
+      tx.objectStore("State").put(state, "latest");
+    } catch (err) { console.warn("saveToDB failed:", err); }
+  }
 
-function loadFromDB() {
-    if (!db) {
-        if (!document.getElementById('mainBody').children.length) addRow('mainBody');
-        return;
-    }
+  function loadFromDB() {
+    if (!db) { if (!document.getElementById('mainBody').children.length) addRow('mainBody'); return; }
     try {
-        const tx = db.transaction("State", "readonly");
-        const store = tx.objectStore("State");
-        const req = store.get("latest");
-        req.onsuccess = () => {
-            const data = req.result;
-            if (!data) {
-                addRow('mainBody');
-                return;
-            }
-            if (data.rates) {
-                document.getElementById('rateMetal').value = data.rates[0] || 0;
-                document.getElementById('rateSurface').value = data.rates[1] || 0;
-                document.getElementById('rateGalv').value = data.rates[2] || 0;
-            }
-            const mainBody = document.getElementById('mainBody');
-            mainBody.innerHTML = "";
-            if (data.mto && data.mto.length) {
-                data.mto.forEach(row => addRow('mainBody', row));
-            } else {
-                addRow('mainBody');
-            }
-            for (let i = 1; i <= 6; i++) {
-                const tbody = document.getElementById(`opsBody${i}`);
-                if (!tbody || !data.ops || !data.ops[`opsBody${i}`]) continue;
-                tbody.innerHTML = "";
-                data.ops[`opsBody${i}`].forEach(vals => addGen(`opsBody${i}`, vals));
-            }
-            calculateAll();
-        };
-        req.onerror = () => { addRow('mainBody'); };
-    } catch (e) {
-        console.warn("Load failed:", e);
-        addRow('mainBody');
-    }
-}
+      const tx = db.transaction("State","readonly");
+      const store = tx.objectStore("State");
+      const req = store.get("latest");
+      req.onsuccess = () => {
+        const data = req.result;
+        if (!data) { addRow('mainBody'); return; }
+        if (data.rates) {
+          document.getElementById('rateMetal').value = data.rates[0] || 0;
+          document.getElementById('rateSurface').value = data.rates[1] || 0;
+          document.getElementById('rateGalv').value = data.rates[2] || 0;
+        }
+        const mainBody = document.getElementById('mainBody'); mainBody.innerHTML = "";
+        if (data.mto && data.mto.length) data.mto.forEach(row => addRow('mainBody', row)); else addRow('mainBody');
+        for (let i=1;i<=6;i++){
+          const tbody = document.getElementById(`opsBody${i}`);
+          if (!tbody || !data.ops || !data.ops[`opsBody${i}`]) continue;
+          tbody.innerHTML = "";
+          data.ops[`opsBody${i}`].forEach(vals => addGen(`opsBody${i}`, vals));
+        }
+        calculateAll();
+      };
+      req.onerror = () => { addRow('mainBody'); };
+    } catch (e) { console.warn("Load failed:", e); addRow('mainBody'); }
+  }
 
-// Highlighting logic
-function onShapeChange(element) {
+  // addRow, addGen, removeRow
+  function addRow(id, v = null) {
+    const rowHtml = `
+    <tr>
+      <td><input type="text" class="desc" value="${v ? v[0] : ''}"></td>
+      <td>
+        <select class="shape-sel" onchange="onShapeChange(this)">
+                    <option value="">Select Shape</option>
+                   <optgroup label="Manual Shapes">
+                    <option value="CHS" ${v && v[1] === 'CHS' ? 'selected' : ''}>CHS</option>
+                    <option value="RHS/SHS" ${v && v[1] === 'RHS/SHS' ? 'selected' : ''}>RHS / SHS</option>
+                    <option value="ROUND BAR" ${v && v[1] === 'ROUND BAR' ? 'selected' : ''}>ROUND BAR</option>
+                    <option value="FLAT BAR" ${v && v[1] === 'FLAT BAR' ? 'selected' : ''}>FLAT BAR</option>
+                    <option value="PLATE" ${v && v[1] === 'PLATE' ? 'selected' : ''}>PLATE</option>
+                    <option value="ANGLE/TEE" ${v && v[1] === 'ANGLE/TEE' ? 'selected' : ''}>ANGLE/TEE</option>
+                    <option value="CHANNEL" ${v && v[1] === 'CHANNEL' ? 'selected' : ''}>CHANNEL</option>
+                    <option value="SQ BAR" ${v && v[1] === 'SQ BAR' ? 'selected' : ''}>SQ BAR</option>
+                    <option value="REBAR" ${v && v[1] === 'REBAR' ? 'selected' : ''}>REBAR</option>
+                    <option value="HEX BAR" ${v && v[1] === 'HEX BAR' ? 'selected' : ''}>HEX BAR</option>
+                </optgroup>
+                <optgroup label="HEB Profiles">
+                    <option value="HEB 100" data-wt="20.4" data-sa="0.80" ${v && v[1] === 'HEB 100' ? 'selected' : ''}>HEB 100</option>
+                    <option value="HEB 120" data-wt="26.7" data-sa="0.95" ${v && v[1] === 'HEB 120' ? 'selected' : ''}>HEB 120</option>
+                    <option value="HEB 140" data-wt="33.7" data-sa="1.10" ${v && v[1] === 'HEB 140' ? 'selected' : ''}>HEB 140</option>
+                    <option value="HEB 160" data-wt="42.6" data-sa="1.30" ${v && v[1] === 'HEB 160' ? 'selected' : ''}>HEB 160</option>
+                    <option value="HEB 180" data-wt="51.2" data-sa="1.50" ${v && v[1] === 'HEB 180' ? 'selected' : ''}>HEB 180</option>
+                    <option value="HEB 200" data-wt="61.3" data-sa="1.70" ${v && v[1] === 'HEB 200' ? 'selected' : ''}>HEB 200</option>
+                    <option value="HEB 220" data-wt="71.3" data-sa="1.95" ${v && v[1] === 'HEB 220' ? 'selected' : ''}>HEB 220</option>
+                    <option value="HEB 240" data-wt="83.2" data-sa="2.20" ${v && v[1] === 'HEB 240' ? 'selected' : ''}>HEB 240</option>
+                    <option value="HEB 260" data-wt="93"   data-sa="2.45" ${v && v[1] === 'HEB 260' ? 'selected' : ''}>HEB 260</option>
+                    <option value="HEB 280" data-wt="103"  data-sa="2.70" ${v && v[1] === 'HEB 280' ? 'selected' : ''}>HEB 280</option>
+                    <option value="HEB 300" data-wt="117"  data-sa="3.00" ${v && v[1] === 'HEB 300' ? 'selected' : ''}>HEB 300</option>
+                    <option value="HEB 320" data-wt="127"  data-sa="3.25" ${v && v[1] === 'HEB 320' ? 'selected' : ''}>HEB 320</option>
+                    <option value="HEB 340" data-wt="134"  data-sa="3.45" ${v && v[1] === 'HEB 340' ? 'selected' : ''}>HEB 340</option>
+                    <option value="HEB 360" data-wt="146"  data-sa="3.70" ${v && v[1] === 'HEB 360' ? 'selected' : ''}>HEB 360</option>
+                    <option value="HEB 400" data-wt="171"  data-sa="4.20" ${v && v[1] === 'HEB 400' ? 'selected' : ''}>HEB 400</option>
+                    <option value="HEB 450" data-wt="211"  data-sa="4.90" ${v && v[1] === 'HEB 450' ? 'selected' : ''}>HEB 450</option>
+                    <option value="HEB 500" data-wt="245"  data-sa="5.60" ${v && v[1] === 'HEB 500' ? 'selected' : ''}>HEB 500</option>
+                    <option value="HEB 550" data-wt="291"  data-sa="6.40" ${v && v[1] === 'HEB 550' ? 'selected' : ''}>HEB 550</option>
+                    <option value="HEB 600" data-wt="337"  data-sa="7.20" ${v && v[1] === 'HEB 600' ? 'selected' : ''}>HEB 600</option>
+                    <option value="HEB 650" data-wt="385"  data-sa="8.10" ${v && v[1] === 'HEB 650' ? 'selected' : ''}>HEB 650</option>
+                </optgroup>
+                <optgroup label="IPN Profiles">
+                    <option value="IPN 80"  data-wt="6"    data-sa="0.45" ${v && v[1] === 'IPN 80' ? 'selected' : ''}>IPN 80</option>
+                    <option value="IPN 100" data-wt="8.1"  data-sa="0.55" ${v && v[1] === 'IPN 100' ? 'selected' : ''}>IPN 100</option>
+                    <option value="IPN 120" data-wt="10.4" data-sa="0.65" ${v && v[1] === 'IPN 120' ? 'selected' : ''}>IPN 120</option>
+                    <option value="IPN 140" data-wt="12.9" data-sa="0.78" ${v && v[1] === 'IPN 140' ? 'selected' : ''}>IPN 140</option>
+                    <option value="IPN 160" data-wt="15.8" data-sa="0.90" ${v && v[1] === 'IPN 160' ? 'selected' : ''}>IPN 160</option>
+                    <option value="IPN 180" data-wt="18.8" data-sa="1.05" ${v && v[1] === 'IPN 180' ? 'selected' : ''}>IPN 180</option>
+                    <option value="IPN 200" data-wt="22.4" data-sa="1.20" ${v && v[1] === 'IPN 200' ? 'selected' : ''}>IPN 200</option>
+                    <option value="IPN 220" data-wt="26.2" data-sa="1.35" ${v && v[1] === 'IPN 220' ? 'selected' : ''}>IPN 220</option>
+                    <option value="IPN 240" data-wt="30.7" data-sa="1.55" ${v && v[1] === 'IPN 240' ? 'selected' : ''}>IPN 240</option>
+                    <option value="IPN 260" data-wt="35.8" data-sa="1.75" ${v && v[1] === 'IPN 260' ? 'selected' : ''}>IPN 260</option>
+                    <option value="IPN 280" data-wt="41"   data-sa="1.95" ${v && v[1] === 'IPN 280' ? 'selected' : ''}>IPN 280</option>
+                    <option value="IPN 300" data-wt="46.2" data-sa="2.15" ${v && v[1] === 'IPN 300' ? 'selected' : ''}>IPN 300</option>
+                    <option value="IPN 320" data-wt="52.7" data-sa="2.40" ${v && v[1] === 'IPN 320' ? 'selected' : ''}>IPN 320</option>
+                    <option value="IPN 340" data-wt="59.4" data-sa="2.65" ${v && v[1] === 'IPN 340' ? 'selected' : ''}>IPN 340</option>
+                    <option value="IPN 360" data-wt="66.3" data-sa="2.95" ${v && v[1] === 'IPN 360' ? 'selected' : ''}>IPN 360</option>
+                    <option value="IPN 380" data-wt="73.4" data-sa="3.20" ${v && v[1] === 'IPN 380' ? 'selected' : ''}>IPN 380</option>
+                    <option value="IPN 400" data-wt="81"   data-sa="3.50" ${v && v[1] === 'IPN 400' ? 'selected' : ''}>IPN 400</option>
+                    <option value="IPN 450" data-wt="92"   data-sa="4.00" ${v && v[1] === 'IPN 450' ? 'selected' : ''}>IPN 450</option>
+                    <option value="IPN 500" data-wt="103"  data-sa="4.50" ${v && v[1] === 'IPN 500' ? 'selected' : ''}>IPN 500</option>
+                    <option value="IPN 550" data-wt="116"  data-sa="5.10" ${v && v[1] === 'IPN 550' ? 'selected' : ''}>IPN 550</option>
+                </optgroup>
+                <optgroup label="IPE Profiles">
+                    <option value="IPE 80"  data-wt="6"    data-sa="0.325" ${v && v[1] === 'IPE 80' ? 'selected' : ''}>IPE 80</option>
+                    <option value="IPE 100" data-wt="8.1"  data-sa="0.54" ${v && v[1] === 'IPE 100' ? 'selected' : ''}>IPE 100</option>
+                    <option value="IPE 120" data-wt="10.4" data-sa="0.64" ${v && v[1] === 'IPE 120' ? 'selected' : ''}>IPE 120</option>
+                    <option value="IPE 140" data-wt="12.9" data-sa="0.76" ${v && v[1] === 'IPE 140' ? 'selected' : ''}>IPE 140</option>
+                    <option value="IPE 160" data-wt="15.8" data-sa="0.88" ${v && v[1] === 'IPE 160' ? 'selected' : ''}>IPE 160</option>
+                    <option value="IPE 180" data-wt="18.8" data-sa="1.02" ${v && v[1] === 'IPE 180' ? 'selected' : ''}>IPE 180</option>
+                    <option value="IPE 200" data-wt="22.4" data-sa="1.18" ${v && v[1] === 'IPE 200' ? 'selected' : ''}>IPE 200</option>
+                    <option value="IPE 220" data-wt="26.2" data-sa="1.32" ${v && v[1] === 'IPE 220' ? 'selected' : ''}>IPE 220</option>
+                    <option value="IPE 240" data-wt="30.7" data-sa="1.50" ${v && v[1] === 'IPE 240' ? 'selected' : ''}>IPE 240</option>
+                    <option value="IPE 270" data-wt="36.2" data-sa="1.75" ${v && v[1] === 'IPE 270' ? 'selected' : ''}>IPE 270</option>
+                    <option value="IPE 300" data-wt="42.2" data-sa="2.00" ${v && v[1] === 'IPE 300' ? 'selected' : ''}>IPE 300</option>
+                    <option value="IPE 330" data-wt="49.1" data-sa="2.30" ${v && v[1] === 'IPE 330' ? 'selected' : ''}>IPE 330</option>
+                    <option value="IPE 360" data-wt="57.1" data-sa="2.65" ${v && v[1] === 'IPE 360' ? 'selected' : ''}>IPE 360</option>
+                    <option value="IPE 400" data-wt="66.3" data-sa="3.05" ${v && v[1] === 'IPE 400' ? 'selected' : ''}>IPE 400</option>
+                    <option value="IPE 450" data-wt="77.6" data-sa="3.60" ${v && v[1] === 'IPE 450' ? 'selected' : ''}>IPE 450</option>
+                    <option value="IPE 500" data-wt="90.7" data-sa="4.20" ${v && v[1] === 'IPE 500' ? 'selected' : ''}>IPE 500</option>
+                    <option value="IPE 550" data-wt="106"  data-sa="4.85" ${v && v[1] === 'IPE 550' ? 'selected' : ''}>IPE 550</option>
+                    <option value="IPE 600" data-wt="122"  data-sa="5.50" ${v && v[1] === 'IPE 600' ? 'selected' : ''}>IPE 600</option>
+                </optgroup>
+                <optgroup label="HEA Profiles">
+                    <option value="HEA 100" data-wt="16.7" data-sa="0.62" ${v && v[1] === 'HEA 100' ? 'selected' : ''}>HEA 100</option>
+                    <option value="HEA 120" data-wt="20.4" data-sa="0.74" ${v && v[1] === 'HEA 120' ? 'selected' : ''}>HEA 120</option>
+                    <option value="HEA 140" data-wt="25.3" data-sa="0.88" ${v && v[1] === 'HEA 140' ? 'selected' : ''}>HEA 140</option>
+                    <option value="HEA 160" data-wt="30.4" data-sa="1.02" ${v && v[1] === 'HEA 160' ? 'selected' : ''}>HEA 160</option>
+                    <option value="HEA 180" data-wt="35.5" data-sa="1.16" ${v && v[1] === 'HEA 180' ? 'selected' : ''}>HEA 180</option>
+                    <option value="HEA 200" data-wt="42.3" data-sa="1.32" ${v && v[1] === 'HEA 200' ? 'selected' : ''}>HEA 200</option>
+                    <option value="HEA 220" data-wt="50.5" data-sa="1.50" ${v && v[1] === 'HEA 220' ? 'selected' : ''}>HEA 220</option>
+                    <option value="HEA 240" data-wt="60.3" data-sa="1.70" ${v && v[1] === 'HEA 240' ? 'selected' : ''}>HEA 240</option>
+                    <option value="HEA 260" data-wt="68.2" data-sa="1.90" ${v && v[1] === 'HEA 260' ? 'selected' : ''}>HEA 260</option>
+                    <option value="HEA 280" data-wt="76.4" data-sa="2.10" ${v && v[1] === 'HEA 280' ? 'selected' : ''}>HEA 280</option>
+                    <option value="HEA 300" data-wt="88.3" data-sa="2.35" ${v && v[1] === 'HEA 300' ? 'selected' : ''}>HEA 300</option>
+                    <option value="HEA 320" data-wt="97.6" data-sa="2.55" ${v && v[1] === 'HEA 320' ? 'selected' : ''}>HEA 320</option>
+                    <option value="HEA 340" data-wt="105"  data-sa="2.75" ${v && v[1] === 'HEA 340' ? 'selected' : ''}>HEA 340</option>
+                    <option value="HEA 360" data-wt="115"  data-sa="3.00" ${v && v[1] === 'HEA 360' ? 'selected' : ''}>HEA 360</option>
+                    <option value="HEA 400" data-wt="134"  data-sa="3.40" ${v && v[1] === 'HEA 400' ? 'selected' : ''}>HEA 400</option>
+                    <option value="HEA 450" data-wt="159"  data-sa="3.95" ${v && v[1] === 'HEA 450' ? 'selected' : ''}>HEA 450</option>
+                    <option value="HEA 500" data-wt="187"  data-sa="4.55" ${v && v[1] === 'HEA 500' ? 'selected' : ''}>HEA 500</option>
+                    <option value="HEA 550" data-wt="219"  data-sa="5.20" ${v && v[1] === 'HEA 550' ? 'selected' : ''}>HEA 550</option>
+                    <option value="HEA 600" data-wt="252"  data-sa="5.90" ${v && v[1] === 'HEA 600' ? 'selected' : ''}>HEA 600</option>
+                    <option value="HEA 650" data-wt="289"  data-sa="6.60" ${v && v[1] === 'HEA 650' ? 'selected' : ''}>HEA 650</option>
+                </optgroup>
+                <optgroup label="UPN Profiles">
+                    <option value="UPN 50"  data-wt="5.59" data-sa="0.232" ${v && v[1] === 'UPN 50' ? 'selected' : ''}>UPN 50</option>
+                    <option value="UPN 60"  data-wt="5.07" data-sa="0.253" ${v && v[1] === 'UPN 60' ? 'selected' : ''}>UPN 60</option>
+                    <option value="UPN 65"  data-wt="7.09" data-sa="0.273" ${v && v[1] === 'UPN 65' ? 'selected' : ''}>UPN 65</option>
+                    <option value="UPN 80"  data-wt="8.64" data-sa="0.312" ${v && v[1] === 'UPN 80' ? 'selected' : ''}>UPN 80</option>
+                    <option value="UPN 100" data-wt="10.6" data-sa="0.372" ${v && v[1] === 'UPN 100' ? 'selected' : ''}>UPN 100</option>
+                    <option value="UPN 120" data-wt="13.4" data-sa="0.434" ${v && v[1] === 'UPN 120' ? 'selected' : ''}>UPN 120</option>
+                    <option value="UPN 140" data-wt="16"   data-sa="0.489" ${v && v[1] === 'UPN 140' ? 'selected' : ''}>UPN 140</option>
+                    <option value="UPN 160" data-wt="18.8" data-sa="0.546" ${v && v[1] === 'UPN 160' ? 'selected' : ''}>UPN 160</option>
+                    <option value="UPN 180" data-wt="22"   data-sa="0.611" ${v && v[1] === 'UPN 180' ? 'selected' : ''}>UPN 180</option>
+                    <option value="UPN 200" data-wt="25.3" data-sa="0.661" ${v && v[1] === 'UPN 200' ? 'selected' : ''}>UPN 200</option>
+                    <option value="UPN 220" data-wt="29.4" data-sa="0.718" ${v && v[1] === 'UPN 220' ? 'selected' : ''}>UPN 220</option>
+                    <option value="UPN 240" data-wt="33.2" data-sa="0.775" ${v && v[1] === 'UPN 240' ? 'selected' : ''}>UPN 240</option>
+                    <option value="UPN 260" data-wt="37.9" data-sa="0.834" ${v && v[1] === 'UPN 260' ? 'selected' : ''}>UPN 260</option>
+                    <option value="UPN 280" data-wt="41.8" data-sa="0.890" ${v && v[1] === 'UPN 280' ? 'selected' : ''}>UPN 280</option>
+                    <option value="UPN 300" data-wt="46.2" data-sa="0.950" ${v && v[1] === 'UPN 300' ? 'selected' : ''}>UPN 300</option>
+                    <option value="UPN 320" data-wt="59.5" data-sa="0.982" ${v && v[1] === 'UPN 320' ? 'selected' : ''}>UPN 320</option>
+                    <option value="UPN 350" data-wt="60.6" data-sa="1.05"  ${v && v[1] === 'UPN 350' ? 'selected' : ''}>UPN 350</option>
+                    <option value="UPN 380" data-wt="63.1" data-sa="1.110" ${v && v[1] === 'UPN 380' ? 'selected' : ''}>UPN 380</option>
+                    <option value="UPN 400" data-wt="71.8" data-sa="1.180" ${v && v[1] === 'UPN 400' ? 'selected' : ''}>UPN 400</option>
+                </optgroup>
+                <optgroup label="Standard Pipes (STD / Sch 40)">
+    <option value="PIPE 1/2 (21.3 OD) STD" data-wt="1.27" data-sa="0.067" ${v && v[1] === 'PIPE 1/2 (21.3 OD) STD' ? 'selected' : ''}>PIPE 1/2" (21.3mm) STD</option>
+    <option value="PIPE 3/4 (26.7 OD) STD" data-wt="1.69" data-sa="0.084" ${v && v[1] === 'PIPE 3/4 (26.7 OD) STD' ? 'selected' : ''}>PIPE 3/4" (26.7mm) STD</option>
+    <option value="PIPE 1 (33.4 OD) STD" data-wt="2.50" data-sa="0.105" ${v && v[1] === 'PIPE 1 (33.4 OD) STD' ? 'selected' : ''}>PIPE 1" (33.4mm) STD</option>
+    <option value="PIPE 1-1/4 (42.2 OD) STD" data-wt="3.39" data-sa="0.133" ${v && v[1] === 'PIPE 1-1/4 (42.2 OD) STD' ? 'selected' : ''}>PIPE 1-1/4" (42.2mm) STD</option>
+    <option value="PIPE 1-1/2 (48.3 OD) STD" data-wt="4.05" data-sa="0.152" ${v && v[1] === 'PIPE 1-1/2 (48.3 OD) STD' ? 'selected' : ''}>PIPE 1-1/2" (48.3mm) STD</option>
+    <option value="PIPE 2 (60.3 OD) STD" data-wt="5.44" data-sa="0.189" ${v && v[1] === 'PIPE 2 (60.3 OD) STD' ? 'selected' : ''}>PIPE 2" (60.3mm) STD</option>
+    <option value="PIPE 2-1/2 (73.0 OD) STD" data-wt="8.63" data-sa="0.229" ${v && v[1] === 'PIPE 2-1/2 (73.0 OD) STD' ? 'selected' : ''}>PIPE 2-1/2" (73.0mm) STD</option>
+    <option value="PIPE 3 (88.9 OD) STD" data-wt="11.29" data-sa="0.279" ${v && v[1] === 'PIPE 3 (88.9 OD) STD' ? 'selected' : ''}>PIPE 3" (88.9mm) STD</option>
+    <option value="PIPE 4 (114.3 OD) STD" data-wt="16.08" data-sa="0.359" ${v && v[1] === 'PIPE 4 (114.3 OD) STD' ? 'selected' : ''}>PIPE 4" (114.3mm) STD</option>
+    <option value="PIPE 5 (141.3 OD) STD" data-wt="21.77" data-sa="0.444" ${v && v[1] === 'PIPE 5 (141.3 OD) STD' ? 'selected' : ''}>PIPE 5" (141.3mm) STD</option>
+    <option value="PIPE 6 (168.3 OD) STD" data-wt="28.26" data-sa="0.529" ${v && v[1] === 'PIPE 6 (168.3 OD) STD' ? 'selected' : ''}>PIPE 6" (168.3mm) STD</option>
+    <option value="PIPE 8 (219.1 OD) STD" data-wt="42.55" data-sa="0.688" ${v && v[1] === 'PIPE 8 (219.1 OD) STD' ? 'selected' : ''}>PIPE 8" (219.1mm) STD</option>
+    <option value="PIPE 10 (273.0 OD) STD" data-wt="60.29" data-sa="0.858" ${v && v[1] === 'PIPE 10 (273.0 OD) STD' ? 'selected' : ''}>PIPE 10" (273.0mm) STD</option>
+    <option value="PIPE 12 (323.8 OD) STD" data-wt="73.86" data-sa="1.017" ${v && v[1] === 'PIPE 12 (323.8 OD) STD' ? 'selected' : ''}>PIPE 12" (323.8mm) STD</option>
+</optgroup>
+
+<optgroup label="Extra Strong Pipes (XS / Sch 80)">
+    <option value="PIPE 1/2 (21.3 OD) XS" data-wt="1.62" data-sa="0.067" ${v && v[1] === 'PIPE 1/2 (21.3 OD) XS' ? 'selected' : ''}>PIPE 1/2" (21.3mm) XS</option>
+    <option value="PIPE 3/4 (26.7 OD) XS" data-wt="2.20" data-sa="0.084" ${v && v[1] === 'PIPE 3/4 (26.7 OD) XS' ? 'selected' : ''}>PIPE 3/4" (26.7mm) XS</option>
+    <option value="PIPE 1 (33.4 OD) XS" data-wt="3.24" data-sa="0.105" ${v && v[1] === 'PIPE 1 (33.4 OD) XS' ? 'selected' : ''}>PIPE 1" (33.4mm) XS</option>
+    <option value="PIPE 1-1/4 (42.2 OD) XS" data-wt="4.47" data-sa="0.133" ${v && v[1] === 'PIPE 1-1/4 (42.2 OD) XS' ? 'selected' : ''}>PIPE 1-1/4" (42.2mm) XS</option>
+    <option value="PIPE 1-1/2 (48.3 OD) XS" data-wt="5.41" data-sa="0.152" ${v && v[1] === 'PIPE 1-1/2 (48.3 OD) XS' ? 'selected' : ''}>PIPE 1-1/2" (48.3mm) XS</option>
+    <option value="PIPE 2 (60.3 OD) XS" data-wt="7.48" data-sa="0.189" ${v && v[1] === 'PIPE 2 (60.3 OD) XS' ? 'selected' : ''}>PIPE 2" (60.3mm) XS</option>
+    <option value="PIPE 2-1/2 (73.0 OD) XS" data-wt="11.41" data-sa="0.229" ${v && v[1] === 'PIPE 2-1/2 (73.0 OD) XS' ? 'selected' : ''}>PIPE 2-1/2" (73.0mm) XS</option>
+    <option value="PIPE 3 (88.9 OD) XS" data-wt="15.27" data-sa="0.279" ${v && v[1] === 'PIPE 3 (88.9 OD) XS' ? 'selected' : ''}>PIPE 3" (88.9mm) XS</option>
+    <option value="PIPE 4 (114.3 OD) XS" data-wt="22.32" data-sa="0.359" ${v && v[1] === 'PIPE 4 (114.3 OD) XS' ? 'selected' : ''}>PIPE 4" (114.3mm) XS</option>
+    <option value="PIPE 6 (168.3 OD) XS" data-wt="42.56" data-sa="0.529" ${v && v[1] === 'PIPE 6 (168.3 OD) XS' ? 'selected' : ''}>PIPE 6" (168.3mm) XS</option>
+    <option value="PIPE 8 (219.1 OD) XS" data-wt="64.64" data-sa="0.688" ${v && v[1] === 'PIPE 8 (219.1 OD) XS' ? 'selected' : ''}>PIPE 8" (219.1mm) XS</option>
+</optgroup>
+
+<optgroup label="Large Diameter Pipes (STD)">
+    <option value="PIPE 14 (355.6 OD) STD" data-wt="81.33" data-sa="1.117" ${v && v[1] === 'PIPE 14 (355.6 OD) STD' ? 'selected' : ''}>PIPE 14" (355.6mm) STD</option>
+    <option value="PIPE 16 (406.4 OD) STD" data-wt="93.27" data-sa="1.277" ${v && v[1] === 'PIPE 16 (406.4 OD) STD' ? 'selected' : ''}>PIPE 16" (406.4mm) STD</option>
+    <option value="PIPE 18 (457.0 OD) STD" data-wt="105.17" data-sa="1.436" ${v && v[1] === 'PIPE 18 (457.0 OD) STD' ? 'selected' : ''}>PIPE 18" (457.0mm) STD</option>
+    <option value="PIPE 20 (508.0 OD) STD" data-wt="117.15" data-sa="1.596" ${v && v[1] === 'PIPE 20 (508.0 OD) STD' ? 'selected' : ''}>PIPE 20" (508.0mm) STD</option>
+    <option value="PIPE 24 (610.0 OD) STD" data-wt="141.12" data-sa="1.916" ${v && v[1] === 'PIPE 24 (610.0 OD) STD' ? 'selected' : ''}>PIPE 24" (610.0mm) STD</option>
+</optgroup>
+        </select>
+      </td>
+      <td>
+        <select class="mat-sel" onchange="calculateAll()">
+          <option value="Steel">Steel</option>
+          <option value="Stainless">SS</option>
+          <option value="Aluminum">Aluminum</option>
+        </select>
+      </td>
+      <td><input type="number" value="${v ? v[3] : 0}" oninput="onShapeChange(this)"></td>
+      <td><input type="number" value="${v ? v[4] : 0}" oninput="onShapeChange(this)"></td>
+      <td><input type="number" value="${v ? v[5] : 0}" oninput="onShapeChange(this)"></td>
+      <td><input type="number" value="${v ? v[6] : 0}" oninput="onShapeChange(this)"></td>
+      <td><input type="number" value="${v ? v[7] : 0}" oninput="onShapeChange(this)"></td>
+      <td style="background:#fff7ed">
+        <select class="stock-sel" onchange="calculateAll()">
+          <option value="6000">6m Bar</option>
+          <option value="12000">12m Bar</option>
+          <option value="2.97">4'×8' Plate (2.97 m²)</option>
+          <option value="4.64">5'×10' Plate (4.64 m²)</option>
+          <option value="12.00">2m×6m Plate (12.00 m²)</option>
+        </select>
+      </td>
+      <td style="background:#fff7ed">
+        <select class="mode-sel" onchange="calculateAll()">
+          <option value="truncate">Truncating</option>
+          <option value="roundup">Roundup</option>
+        </select>
+      </td>
+      <td style="background:#fff7ed"><span class="buy-qty">0</span></td>
+      <td><span class="wt-cell">0</span></td>
+      <td><span class="sa-cell">0</span></td>
+      <td><span class="waste-cell">0 %</span></td>
+      <td class="no-print"><button class="btn-del" onclick="removeRow(this)">❌</button></td>
+    </tr>`;
+    document.getElementById(id).insertAdjacentHTML('beforeend', rowHtml);
+    calculateAll();
+  }
+
+  function addGen(id, v = null) {
+    const txt = v ? v[0] : 'Item';
+    const rate = v ? v[1] : 0;
+    const qty = v ? v[2] : 0;
+    document.getElementById(id).insertAdjacentHTML('beforeend',
+      `<tr><td><input type="text" value="${txt}"></td><td><input type="number" value="${rate}" oninput="calculateAll()"></td><td><input type="number" value="${qty}" oninput="calculateAll()"></td><td><span class="subt">0</span></td><td class="no-print"><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
+  }
+
+  function removeRow(btn) { btn.closest('tr').remove(); calculateAll(); }
+
+  // shape highlighting
+  function onShapeChange(element) {
     const row = element.closest('tr');
     const shape = row.querySelector(".shape-sel") ? row.querySelector(".shape-sel").value : "";
     updateHighlight(row, shape);
     calculateAll();
-}
-
-function updateHighlight(row, shape) {
+  }
+  function updateHighlight(row, shape) {
     if (!row) return;
     const cells = row.cells;
     if (!cells || cells.length < 14) return;
@@ -308,12 +527,9 @@ function updateHighlight(row, shape) {
     const thk = cells[5].querySelector("input");
     const len = cells[6].querySelector("input");
     const qty = cells[7].querySelector("input");
-
     [d1, d2, thk, len, qty].forEach(el => el && el.classList.remove("red-input"));
     if (!shape) return;
-
     const isInvalid = (el) => !el || el.value === "" || parseFloat(el.value) <= 0;
-
     if (shape === "CHS" || shape === "ROUND BAR" || shape === "REBAR") {
         if (isInvalid(d1)) d1.classList.add("red-input");
         if (shape === "CHS" && isInvalid(thk)) thk.classList.add("red-input");
@@ -330,151 +546,138 @@ function updateHighlight(row, shape) {
         if (isInvalid(len)) len.classList.add("red-input");
         if (isInvalid(qty)) qty.classList.add("red-input");
     }
-}
+  }
 
-function calculateAll() {
+  // calculateAll (keeps your original logic)
+  function calculateAll() {
     let tw = 0, tsa = 0, top = 0;
     const rm = parseFloat(document.getElementById('rateMetal').value) || 0;
     const rs = parseFloat(document.getElementById('rateSurface').value) || 0;
     const rg = parseFloat(document.getElementById('rateGalv').value) || 0;
 
     document.querySelectorAll('#mainBody tr').forEach(r => {
-        const cells = r.cells;
-        if(!cells) return;
-        const shpSel = cells[1].querySelector("select");
-        const matSel = cells[2].querySelector("select");
-        const shp = shpSel ? shpSel.value : "";
-        const opt = (shpSel && shpSel.selectedOptions && shpSel.selectedOptions[0]) ? shpSel.selectedOptions[0] : { dataset: { wt: 0, sa: 0 } };
+      const cells = r.cells;
+      if(!cells) return;
+      const shpSel = cells[1].querySelector("select");
+      const matSel = cells[2].querySelector("select");
+      const shp = shpSel ? shpSel.value : "";
+      const opt = (shpSel && shpSel.selectedOptions && shpSel.selectedOptions[0]) ? shpSel.selectedOptions[0] : { dataset: { wt: 0, sa: 0 } };
 
-        if (shp !== "" && !manualShapes.includes(shp)) {
-            if (matSel) { matSel.value = "Steel"; matSel.disabled = true; }
-        } else if (matSel) {
-            matSel.disabled = false;
-        }
+      if (shp !== "" && !manualShapes.includes(shp)) {
+        if (matSel) { matSel.value = "Steel"; matSel.disabled = true; }
+      } else if (matSel) {
+        matSel.disabled = false;
+      }
 
-        const rho = (matSel && densities[matSel.value]) ? densities[matSel.value] : 7850;
-        const d1 = parseFloat(cells[3].querySelector("input").value) || 0;
-        const d2 = parseFloat(cells[4].querySelector("input").value) || 0;
-        const thk = parseFloat(cells[5].querySelector("input").value) || 0;
-        const L = parseFloat(cells[6].querySelector("input").value) || 0;
-        const q = parseFloat(cells[7].querySelector("input").value) || 0;
-        const stdWt = parseFloat(opt.dataset.wt) || 0;
-        const stdSA = parseFloat(opt.dataset.sa) || 0;
+      const rho = (matSel && densities[matSel.value]) ? densities[matSel.value] : 7850;
+      const d1 = parseFloat(cells[3].querySelector("input").value) || 0;
+      const d2 = parseFloat(cells[4].querySelector("input").value) || 0;
+      const thk = parseFloat(cells[5].querySelector("input").value) || 0;
+      const L = parseFloat(cells[6].querySelector("input").value) || 0;
+      const q = parseFloat(cells[7].querySelector("input").value) || 0;
+      const stdWt = parseFloat(opt.dataset.wt) || 0;
+      const stdSA = parseFloat(opt.dataset.sa) || 0;
 
-        let wt = 0, sa = 0;
-        if (stdWt > 0) {
-            wt = stdWt * (L / 1000) * q;
-            sa = stdSA * (L / 1000) * q;
-        } else {
-            switch (shp) {
-                case 'CHS':
-                    wt = (Math.PI * (Math.pow(d1/2, 2) - Math.pow((d1 - 2*thk)/2, 2)) / 1e6) * rho * (L/1000) * q;
-                    sa = (Math.PI * d1 / 1000) * (L/1000) * q;
-                    break;
-                case 'RHS/SHS':
-                    wt = ((d1 * d2 - Math.max(0,(d1 - 2*thk)) * Math.max(0,(d2 - 2*thk))) / 1e6) * rho * (L/1000) * q;
-                    sa = (2 * (d1 + d2) / 1000) * (L/1000) * q;
-                    break;
-                case 'ROUND BAR':
-                case 'REBAR':
-                    wt = (Math.PI * Math.pow(d1/2, 2) / 1e6) * rho * (L/1000) * q;
-                    sa = (Math.PI * d1 / 1000) * (L/1000) * q;
-                    break;
-                case 'FLAT BAR':
-                    wt = (d1 * thk / 1e6) * rho * (L/1000) * q;
-                    sa = (2 * (d1 + thk) / 1000) * (L/1000) * q;
-                    break;
-                case 'PLATE':
-                    wt = (d1 * d2 * thk * rho * q) / 1e9;
-                    sa = (2 * d1 * d2 * q) / 1e6;
-                    break;
-                case 'ANGLE/TEE':
-                    wt = ((d1 + d2 - thk) * thk / 1e6) * rho * (L/1000) * q;
-                    sa = (2 * (d1 + d2) / 1000) * (L/1000) * q;
-                    break;
-                case 'CHANNEL':
-                    wt = ((d1 + 2*d2 - 2*thk) * thk / 1e6) * rho * (L/1000) * q;
-                    sa = (2 * (d1 + 2*d2) / 1000) * (L/1000) * q;
-                    break;
-                case 'SQ BAR':
-                    wt = (d1 * d1 / 1e6) * rho * (L/1000) * q;
-                    sa = (4 * d1 / 1000) * (L/1000) * q;
-                    break;
-                case 'HEX BAR':
-                    wt = (0.866 * Math.pow(d1, 2) / 1e6) * rho * (L/1000) * q;
-                    sa = (3.464 * d1 / 1000) * (L/1000) * q;
-                    break;
-                default:
-                    wt = 0; sa = 0;
-            }
-        }
+      let wt = 0, sa = 0;
+      if (stdWt > 0) {
+          wt = stdWt * (L / 1000) * q;
+          sa = stdSA * (L / 1000) * q;
+      } else {
+          switch (shp) {
+              case 'CHS':
+                  wt = (Math.PI * (Math.pow(d1/2, 2) - Math.pow((d1 - 2*thk)/2, 2)) / 1e6) * rho * (L/1000) * q;
+                  sa = (Math.PI * d1 / 1000) * (L/1000) * q;
+                  break;
+              case 'RHS/SHS':
+                  wt = ((d1 * d2 - Math.max(0,(d1 - 2*thk)) * Math.max(0,(d2 - 2*thk))) / 1e6) * rho * (L/1000) * q;
+                  sa = (2 * (d1 + d2) / 1000) * (L/1000) * q;
+                  break;
+              case 'ROUND BAR':
+              case 'REBAR':
+                  wt = (Math.PI * Math.pow(d1/2, 2) / 1e6) * rho * (L/1000) * q;
+                  sa = (Math.PI * d1 / 1000) * (L/1000) * q;
+                  break;
+              case 'FLAT BAR':
+                  wt = (d1 * thk / 1e6) * rho * (L/1000) * q;
+                  sa = (2 * (d1 + thk) / 1000) * (L/1000) * q;
+                  break;
+              case 'PLATE':
+                  wt = (d1 * d2 * thk * rho * q) / 1e9;
+                  sa = (2 * d1 * d2 * q) / 1e6;
+                  break;
+              case 'ANGLE/TEE':
+                  wt = ((d1 + d2 - thk) * thk / 1e6) * rho * (L/1000) * q;
+                  sa = (2 * (d1 + d2) / 1000) * (L/1000) * q;
+                  break;
+              case 'CHANNEL':
+                  wt = ((d1 + 2*d2 - 2*thk) * thk / 1e6) * rho * (L/1000) * q;
+                  sa = (2 * (d1 + 2*d2) / 1000) * (L/1000) * q;
+                  break;
+              case 'SQ BAR':
+                  wt = (d1 * d1 / 1e6) * rho * (L/1000) * q;
+                  sa = (4 * d1 / 1000) * (L/1000) * q;
+                  break;
+              case 'HEX BAR':
+                  wt = (0.866 * Math.pow(d1, 2) / 1e6) * rho * (L/1000) * q;
+                  sa = (3.464 * d1 / 1000) * (L/1000) * q;
+                  break;
+              default:
+                  wt = 0; sa = 0;
+          }
+      }
 
-        // stockVal: for bars -> mm (6000, 12000 etc)
-        //            for plates -> m2 (2.97, 4.64, 12.00 etc)
-        const stockValRaw = parseFloat((cells[8] && cells[8].querySelector("select")) ? cells[8].querySelector("select").value : 6000) || 6000;
-        const modeSel = cells[9] ? cells[9].querySelector(".mode-sel") : null;
-        const mode = modeSel ? modeSel.value : "truncate";
-        let buyQty = 0;
+      const stockValRaw = parseFloat((cells[8] && cells[8].querySelector("select")) ? cells[8].querySelector("select").value : 6000) || 6000;
+      const modeSel = cells[9] ? cells[9].querySelector(".mode-sel") : null;
+      const mode = modeSel ? modeSel.value : "truncate";
+      let buyQty = 0;
 
-        if (shp === 'PLATE') {
-            // Required area (m2)
-            const requiredArea = (d1 * d2 * q) / 1e6;
-            const sheetArea = stockValRaw; // assumed m2
-            buyQty = sheetArea > 0 ? Math.ceil(requiredArea / sheetArea) : 0;
-            if (mode === "roundup") {
-                // full sheet weight (kg) = area (m2) * thickness (m) * density (kg/m3)
-                const fullSheetWeight = sheetArea * (thk / 1000) * rho;
-                wt = fullSheetWeight * buyQty;
-                // keep sa as actual part surface (for paint calc). If you want painting per sheet, change here.
-                sa = (2 * d1 * d2 * q) / 1e6;
-            } else {
-                // truncating -> weight remains based on parts (already calculated)
-            }
-            // waste %
-            const purchasedArea = buyQty * sheetArea;
-            let wastePercent = 0;
-            if (purchasedArea > 0) wastePercent = ((purchasedArea - requiredArea) / purchasedArea) * 100;
-            if (cells[13]) cells[13].querySelector(".waste-cell").innerText = wastePercent.toFixed(1) + " %";
-        } else {
-            // Bars and other linear stock
-            const requiredLength = L * q; // mm
-            const stockLength = stockValRaw; // mm
-            buyQty = stockLength > 0 ? Math.ceil(requiredLength / stockLength) : 0;
-            if (mode === "roundup") {
-                // convert current wt to per-mm rate if possible
-                const purchasedLength = buyQty * stockLength;
-                if (requiredLength > 0) {
-                    const unitPerMM = wt / (requiredLength || 1); // kg per mm (based on current wt)
-                    wt = unitPerMM * stockLength * buyQty;
-                } else {
-                    wt = 0;
-                }
-            } else {
-                // truncating -> wt remains actual (already calculated)
-            }
-            const purchasedLength = buyQty * stockLength;
-            let wastePercent = 0;
-            if (purchasedLength > 0) wastePercent = ((purchasedLength - requiredLength) / purchasedLength) * 100;
-            if (cells[13]) cells[13].querySelector(".waste-cell").innerText = wastePercent.toFixed(1) + " %";
-        }
+      if (shp === 'PLATE') {
+          const requiredArea = (d1 * d2 * q) / 1e6;
+          const sheetArea = stockValRaw;
+          buyQty = sheetArea > 0 ? Math.ceil(requiredArea / sheetArea) : 0;
+          if (mode === "roundup") {
+              const fullSheetWeight = sheetArea * (thk / 1000) * rho;
+              wt = fullSheetWeight * buyQty;
+              sa = (2 * d1 * d2 * q) / 1e6;
+          }
+          const purchasedArea = buyQty * sheetArea;
+          let wastePercent = 0;
+          if (purchasedArea > 0) wastePercent = ((purchasedArea - requiredArea) / purchasedArea) * 100;
+          if (cells[13]) cells[13].querySelector(".waste-cell").innerText = wastePercent.toFixed(1) + " %";
+      } else {
+          const requiredLength = L * q;
+          const stockLength = stockValRaw;
+          buyQty = stockLength > 0 ? Math.ceil(requiredLength / stockLength) : 0;
+          if (mode === "roundup") {
+              const purchasedLength = buyQty * stockLength;
+              if (requiredLength > 0) {
+                  const unitPerMM = wt / (requiredLength || 1);
+                  wt = unitPerMM * stockLength * buyQty;
+              } else wt = 0;
+          }
+          const purchasedLength = buyQty * stockLength;
+          let wastePercent = 0;
+          if (purchasedLength > 0) wastePercent = ((purchasedLength - requiredLength) / purchasedLength) * 100;
+          if (cells[13]) cells[13].querySelector(".waste-cell").innerText = wastePercent.toFixed(1) + " %";
+      }
 
-        if (cells[10]) cells[10].querySelector(".buy-qty").textContent = buyQty;
-        if (cells[11]) cells[11].querySelector(".wt-cell").innerText = wt.toFixed(2);
-        if (cells[12]) cells[12].querySelector(".sa-cell").innerText = sa.toFixed(2);
+      if (cells[10]) cells[10].querySelector(".buy-qty").textContent = buyQty;
+      if (cells[11]) cells[11].querySelector(".wt-cell").innerText = wt.toFixed(2);
+      if (cells[12]) cells[12].querySelector(".sa-cell").innerText = sa.toFixed(2);
 
-        tw += wt; tsa += sa;
+      tw += wt; tsa += sa;
     });
 
     // Subtotals for ops/consumables
     document.querySelectorAll('.subt').forEach(span => {
-        const tr = span.closest('tr');
-        if (!tr) return;
-        const inputs = tr.querySelectorAll('input');
-        const rate = parseFloat(inputs[1] ? inputs[1].value : 0) || 0;
-        const qty = parseFloat(inputs[2] ? inputs[2].value : 0) || 0;
-        const subtotal = rate * qty;
-        span.innerText = subtotal.toFixed(2);
-        top += subtotal;
+      const tr = span.closest('tr');
+      if (!tr) return;
+      const inputs = tr.querySelectorAll('input');
+      const rate = parseFloat(inputs[1] ? inputs[1].value : 0) || 0;
+      const qty = parseFloat(inputs[2] ? inputs[2].value : 0) || 0;
+      const subtotal = rate * qty;
+      span.innerText = subtotal.toFixed(2);
+      top += subtotal;
     });
 
     document.getElementById('totWt').innerText = tw.toFixed(1) + " kg";
@@ -484,295 +687,355 @@ function calculateAll() {
     document.getElementById('grandTotal').innerText = (tw*rm + tsa*rs + tw*rg + top).toLocaleString(undefined, { minimumFractionDigits: 2 });
 
     saveToDB();
-}
+  }
 
-function addRow(id, v = null) {
-    // v index mapping (when restoring): 0:desc,1:shape,2:mat,3:d1,4:d2,5:thk,6:L,7:qty,8:stock,9:mode
-    const rowHtml = `
-    <tr>
-        <td><input type="text" class="desc" value="${v ? v[0] : ''}"></td>
-        <td>
-            <select class="shape-sel" onchange="onShapeChange(this)">
-                <option value="">Select Shape</option>
-               <optgroup label="Manual Shapes">
-                <option value="CHS" ${v && v[1] === 'CHS' ? 'selected' : ''}>CHS</option>
-                <option value="RHS/SHS" ${v && v[1] === 'RHS/SHS' ? 'selected' : ''}>RHS / SHS</option>
-                <option value="ROUND BAR" ${v && v[1] === 'ROUND BAR' ? 'selected' : ''}>ROUND BAR</option>
-                <option value="FLAT BAR" ${v && v[1] === 'FLAT BAR' ? 'selected' : ''}>FLAT BAR</option>
-                <option value="PLATE" ${v && v[1] === 'PLATE' ? 'selected' : ''}>PLATE</option>
-                <option value="ANGLE/TEE" ${v && v[1] === 'ANGLE/TEE' ? 'selected' : ''}>ANGLE/TEE</option>
-                <option value="CHANNEL" ${v && v[1] === 'CHANNEL' ? 'selected' : ''}>CHANNEL</option>
-                <option value="SQ BAR" ${v && v[1] === 'SQ BAR' ? 'selected' : ''}>SQ BAR</option>
-                <option value="REBAR" ${v && v[1] === 'REBAR' ? 'selected' : ''}>REBAR</option>
-                <option value="HEX BAR" ${v && v[1] === 'HEX BAR' ? 'selected' : ''}>HEX BAR</option>
-            </optgroup>
-            <optgroup label="HEB Profiles">
-                <option value="HEB 100" data-wt="20.4" data-sa="0.80" ${v && v[1] === 'HEB 100' ? 'selected' : ''}>HEB 100</option>
-                <option value="HEB 120" data-wt="26.7" data-sa="0.95" ${v && v[1] === 'HEB 120' ? 'selected' : ''}>HEB 120</option>
-                <option value="HEB 140" data-wt="33.7" data-sa="1.10" ${v && v[1] === 'HEB 140' ? 'selected' : ''}>HEB 140</option>
-                <option value="HEB 160" data-wt="42.6" data-sa="1.30" ${v && v[1] === 'HEB 160' ? 'selected' : ''}>HEB 160</option>
-                <option value="HEB 180" data-wt="51.2" data-sa="1.50" ${v && v[1] === 'HEB 180' ? 'selected' : ''}>HEB 180</option>
-                <option value="HEB 200" data-wt="61.3" data-sa="1.70" ${v && v[1] === 'HEB 200' ? 'selected' : ''}>HEB 200</option>
-                <option value="HEB 220" data-wt="71.3" data-sa="1.95" ${v && v[1] === 'HEB 220' ? 'selected' : ''}>HEB 220</option>
-            </optgroup>
-            <optgroup label="Large Diameter Pipes (STD)">
-                <option value="PIPE 14 (355.6 OD) STD" data-wt="81.33" data-sa="1.117" ${v && v[1] === 'PIPE 14 (355.6 OD) STD' ? 'selected' : ''}>PIPE 14" (355.6mm) STD</option>
-                <option value="PIPE 16 (406.4 OD) STD" data-wt="93.27" data-sa="1.277" ${v && v[1] === 'PIPE 16 (406.4 OD) STD' ? 'selected' : ''}>PIPE 16" (406.4mm) STD</option>
-            </optgroup>
-            </select>
-        </td>
-        <td>
-            <select class="mat-sel" onchange="calculateAll()">
-                <option value="Steel" ${v && v[2] === 'Steel' ? 'selected' : ''}>Steel</option>
-                <option value="Stainless" ${v && v[2] === 'Stainless' ? 'selected' : ''}>SS</option>
-                <option value="Aluminum" ${v && v[2] === 'Aluminum' ? 'selected' : ''}>Aluminum</option>
-            </select>
-        </td>
-        <td><input type="number" value="${v ? v[3] : 0}" oninput="onShapeChange(this)"></td>
-        <td><input type="number" value="${v ? v[4] : 0}" oninput="onShapeChange(this)"></td>
-        <td><input type="number" value="${v ? v[5] : 0}" oninput="onShapeChange(this)"></td>
-        <td><input type="number" value="${v ? v[6] : 0}" oninput="onShapeChange(this)"></td>
-        <td><input type="number" value="${v ? v[7] : 0}" oninput="onShapeChange(this)"></td>
-        <td style="background:#fff7ed">
-            <select class="stock-sel" onchange="calculateAll()">
-                <option value="6000" ${v && v[8] === '6000' ? 'selected' : ''}>6m Bar</option>
-                <option value="12000" ${v && v[8] === '12000' ? 'selected' : ''}>12m Bar</option>
-                <option value="2.97" ${v && v[8] === '2.97' ? 'selected' : ''}>4'×8' Plate (2.97 m²)</option>
-                <option value="4.64" ${v && v[8] === '4.64' ? 'selected' : ''}>5'×10' Plate (4.64 m²)</option>
-                <option value="12.00" ${v && v[8] === '12.00' ? 'selected' : ''}>2m×6m Plate (12.00 m²)</option>
-            </select>
-        </td>
-        <td style="background:#fff7ed">
-            <select class="mode-sel" onchange="calculateAll()">
-                <option value="truncate" ${v && v[9] === 'truncate' ? 'selected' : ''}>Truncating</option>
-                <option value="roundup" ${v && v[9] === 'roundup' ? 'selected' : ''}>Roundup</option>
-            </select>
-        </td>
-        <td style="background:#fff7ed"><span class="buy-qty">0</span></td>
-        <td><span class="wt-cell">0</span></td>
-        <td><span class="sa-cell">0</span></td>
-        <td><span class="waste-cell">0 %</span></td>
-        <td class="no-print"><button class="btn-del" onclick="removeRow(this)">❌</button></td>
-    </tr>`;
-    const tbody = document.getElementById(id);
-    tbody.insertAdjacentHTML('beforeend', rowHtml);
-    const newRow = tbody.lastElementChild;
-    updateHighlight(newRow, newRow.querySelector(".shape-sel").value);
-    calculateAll();
-}
-
-function addGen(id, v = null) {
-    const txt = v ? v[0] : 'Item';
-    const rate = v ? v[1] : 0;
-    const qty = v ? v[2] : 0;
-    document.getElementById(id).insertAdjacentHTML('beforeend', `<tr><td><input type="text" value="${txt}"></td><td><input type="number" value="${rate}" oninput="calculateAll()"></td><td><input type="number" value="${qty}" oninput="calculateAll()"></td><td><span class="subt">0</span></td><td class="no-print"><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
-}
-
-function removeRow(btn) { btn.closest('tr').remove(); calculateAll(); }
-
-function exportToExcel() {
-    if (typeof XLSX === 'undefined') {
-        alert("Excel library not loaded!");
-        return;
-    }
-
+  // export to Excel
+  function exportToExcel() {
+    if (typeof XLSX === 'undefined') { alert("Excel library not loaded!"); return; }
     const wb = XLSX.utils.book_new();
     const ws_data = [];
-
     ws_data.push(["PRO-FAB MASTER PROJECT ESTIMATION REPORT"]);
     ws_data.push(["Date:", new Date().toLocaleDateString()], [""]);
-
     ws_data.push(["1. MAIN PROJECT ESTIMATION"]);
     ws_data.push(["Description", "Profile", "Material", "D1", "D2", "Thk", "L (mm)", "Qty", "Stock", "Mode", "Buy Qty", "WT (kg)", "SURF (m2)", "Wastage"]);
-
     document.querySelectorAll('#mainBody tr').forEach(row => {
-        const rowData = [];
-        // grab inputs & selects for saved state
-        const inputsAndSelects = row.querySelectorAll('input, select');
-        inputsAndSelects.forEach(i => rowData.push(i.value));
-        const buyQty = row.querySelector('.buy-qty')?.innerText || "0";
-        const wt = row.querySelector('.wt-cell')?.innerText || "0";
-        const surf = row.querySelector('.sa-cell')?.innerText || "0";
-        const waste = row.querySelector('.waste-cell')?.innerText || "0 %";
-        // the saved inputs already include stock & mode, so we append computed columns
-        rowData.push(buyQty, wt, surf, waste);
-        ws_data.push(rowData);
+      const rowData = [];
+      const inputsAndSelects = row.querySelectorAll('input, select');
+      inputsAndSelects.forEach(i => rowData.push(i.value));
+      const buyQty = row.querySelector('.buy-qty')?.innerText || "0";
+      const wt = row.querySelector('.wt-cell')?.innerText || "0";
+      const surf = row.querySelector('.sa-cell')?.innerText || "0";
+      const waste = row.querySelector('.waste-cell')?.innerText || "0 %";
+      rowData.push(buyQty, wt, surf, waste);
+      ws_data.push(rowData);
     });
-
     const titles = ["2. CONSUMABLES", "3. ACCESSORIES", "4. OTHER", "5. FABRICATION", "6. COSTS", "7. INSTALL"];
     for (let i = 1; i <= 6; i++) {
-        const tbody = document.getElementById(`opsBody${i}`);
-        if (tbody && tbody.rows.length > 0) {
-            ws_data.push([""], [titles[i-1]], ["Description", "Rate", "Qty/Hrs", "Total"]);
-            Array.from(tbody.rows).forEach(tr => {
-                const inputs = Array.from(tr.querySelectorAll('input')).map(inp => inp.value);
-                const sub = tr.querySelector('.subt')?.innerText || "0";
-                inputs.push(sub);
-                ws_data.push(inputs);
-            });
-        }
+      const tbody = document.getElementById(`opsBody${i}`);
+      if (tbody && tbody.rows.length > 0) {
+        ws_data.push([""], [titles[i-1]], ["Description", "Rate", "Qty/Hrs", "Total"]);
+        Array.from(tbody.rows).forEach(tr => {
+          const inputs = Array.from(tr.querySelectorAll('input')).map(inp => inp.value);
+          const sub = tr.querySelector('.subt')?.innerText || "0";
+          inputs.push(sub);
+          ws_data.push(inputs);
+        });
+      }
     }
-
     ws_data.push([""], ["GRAND TOTALS"]);
     ws_data.push(["Total Weight:", document.getElementById('totWt').innerText]);
     ws_data.push(["Grand Total Cost:", document.getElementById('grandTotal').innerText]);
-
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
     XLSX.utils.book_append_sheet(wb, ws, "Project Report");
     XLSX.writeFile(wb, "ProFab_Report.xlsx");
-}
+  }
 
-// Linear import/optimizer
-function importLinear() {
+  // Linear import/optimizer
+  function importLinear() {
     const b = document.getElementById("linBody");
     b.innerHTML = "";
     document.querySelectorAll('#mainBody tr').forEach(r => {
-        const cells = r.cells;
-        if (!cells) return;
-        const shp = cells[1].querySelector("select").value;
-        if (shp !== 'PLATE' && shp !== "") {
-            const d1 = cells[3].querySelector("input").value;
-            const d2 = cells[4].querySelector("input").value;
-            const len = cells[6].querySelector("input").value;
-            const qty = cells[7].querySelector("input").value;
-            const tk = cells[5].querySelector("input").value;
-            const label = `${shp} ${d1}x${d2}x${tk}`;
-            b.insertAdjacentHTML('beforeend', `<tr><td><input type="text" value="${label}"></td><td><input type="number" value="${len}"></td><td><input type="number" value="${qty}"></td><td><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
-        }
+      const cells = r.cells;
+      if (!cells) return;
+      const shp = cells[1].querySelector("select").value;
+      if (shp !== 'PLATE' && shp !== "") {
+        const d1 = cells[3].querySelector("input").value;
+        const d2 = cells[4].querySelector("input").value;
+        const len = cells[6].querySelector("input").value;
+        const qty = cells[7].querySelector("input").value;
+        const tk = cells[5].querySelector("input").value;
+        const label = `${shp} ${d1}x${d2}x${tk}`;
+        b.insertAdjacentHTML('beforeend', `<tr><td><input type="text" value="${label}"></td><td><input type="number" value="${len}"></td><td><input type="number" value="${qty}"></td><td><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
+      }
     });
-}
+  }
 
-function runLinearOpt() {
+  function runLinearOpt() {
     const stockLimit = parseInt(document.getElementById('linStock').value) || 6000;
     let groups = {};
     document.querySelectorAll("#linBody tr").forEach(r => {
-        const i = r.querySelectorAll('input');
-        if (!i || i.length < 3) return;
-        const label = i[0].value || "Item";
-        const len = parseInt(i[1].value) || 0;
-        const qty = parseInt(i[2].value) || 0;
-        if (!groups[label]) groups[label] = [];
-        for (let j=0; j<qty; j++) groups[label].push(len);
+      const i = r.querySelectorAll('input');
+      if (!i || i.length < 3) return;
+      const label = i[0].value || "Item";
+      const len = parseInt(i[1].value) || 0;
+      const qty = parseInt(i[2].value) || 0;
+      if (!groups[label]) groups[label] = [];
+      for (let j=0;j<qty;j++) groups[label].push(len);
     });
     const res = document.getElementById('linResult'); res.innerHTML = "";
     Object.keys(groups).forEach(p => {
-        let items = groups[p].slice().sort((a,b) => b - a);
-        let bars = [];
-        items.forEach(len => {
-            let f = bars.find(b => (b.used + len) <= stockLimit);
-            if (f) { f.cuts.push(len); f.used += len; }
-            else { bars.push({cuts:[len], used:len}); }
-        });
-        let html = `<b style="display:block; margin-top:10px;">${p} (${bars.length} Bars)</b>`;
-        bars.forEach((b, idx) => {
-            html += `<div class="bar-container"><div class="bar-header">Bar #${idx+1} <span class="bar-waste">Waste: ${stockLimit - b.used}mm</span></div><div class="bar-breakdown">${b.cuts.join(' + ')}</div></div>`;
-        });
-        res.innerHTML += html;
+      let items = groups[p].slice().sort((a,b) => b - a);
+      let bars = [];
+      items.forEach(len => {
+        let f = bars.find(b => (b.used + len) <= stockLimit);
+        if (f) { f.cuts.push(len); f.used += len; }
+        else { bars.push({cuts:[len], used:len}); }
+      });
+      let html = `<b style="display:block; margin-top:10px;">${p} (${bars.length} Bars)</b>`;
+      bars.forEach((b, idx) => {
+        html += `<div class="bar-container"><div class="bar-header">Bar #${idx+1} <span class="bar-waste">Waste: ${stockLimit - b.used}mm</span></div><div class="bar-breakdown">${b.cuts.join(' + ')}</div></div>`;
+      });
+      res.innerHTML += html;
     });
-}
+  }
 
-// Plate import/nesting
-function importPlates() {
+  // ---------- improved importPlates ----------
+  function importPlates() {
     const b = document.getElementById("pBody"); b.innerHTML = "";
     document.querySelectorAll('#mainBody tr').forEach(r => {
+      const cells = r.cells;
+      if (!cells) return;
+      const shapeSel = cells[1].querySelector("select");
+      if (!shapeSel) return;
+      if (shapeSel.value === 'PLATE') {
+        const w = Number(cells[3].querySelector("input").value) || 0;
+        const l = Number(cells[4].querySelector("input").value) || 0;
+        const t = Number(cells[5].querySelector("input").value) || 0;
+        const q = parseInt(cells[7].querySelector("input").value) || 0;
+        if (w > 0 && l > 0 && t > 0 && q > 0) {
+          b.insertAdjacentHTML('beforeend', `<tr><td><input type="number" value="${w}"></td><td><input type="number" value="${l}"></td><td><input type="number" value="${t}"></td><td><input type="number" value="${q}"></td><td><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
+        }
+      }
+    });
+    if (!document.querySelectorAll('#pBody tr').length) {
+      alert("No plate rows found to import. Make sure 'Profile' is set to PLATE in the main table and Qty > 0.");
+    }
+  }
+
+  // ---------- runPlateOpt (group by thickness) ----------
+  function runPlateOpt() {
+    const kerf = Math.max(0, Number(document.getElementById("pKerf").value) || 0);
+    const sw = Math.max(1, Number(document.getElementById("sw").value) || 1220);
+    const sl = Math.max(1, Number(document.getElementById("sl").value) || 2440);
+    const assumedDensity = densities['Steel'] || 7850;
+
+    // read parts from #pBody first
+    let rawParts = [];
+    document.querySelectorAll("#pBody tr").forEach(row => {
+      const ins = row.querySelectorAll("input");
+      if (!ins || ins.length < 4) return;
+      const w = Number(ins[0].value) || 0;
+      const l = Number(ins[1].value) || 0;
+      const t = Number(ins[2].value) || 0;
+      const q = parseInt(ins[3].value) || 0;
+      for (let i=0;i<q;i++) rawParts.push({ d1: w, d2: l, thk: t });
+    });
+
+    if (rawParts.length === 0) {
+      // fallback reading mainBody rows where profile == PLATE
+      document.querySelectorAll("#mainBody tr").forEach(r => {
         const cells = r.cells;
         if (!cells) return;
-        if (cells[1].querySelector("select").value === 'PLATE') {
-            const w = parseInt(cells[3].querySelector("input").value) || 0;
-            const l = parseInt(cells[4].querySelector("input").value) || 0;
-            const t = parseInt(cells[5].querySelector("input").value) || 0;
-            const q = parseInt(cells[7].querySelector("input").value) || 0;
-            b.insertAdjacentHTML('beforeend', `<tr><td><input type="number" value="${w}"></td><td><input type="number" value="${l}"></td><td><input type="number" value="${t}"></td><td><input type="number" value="${q}"></td><td><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
+        const shapeSel = cells[1].querySelector("select");
+        if (!shapeSel) return;
+        if (shapeSel.value === 'PLATE') {
+          const w = Number(cells[3].querySelector("input").value) || 0;
+          const l = Number(cells[4].querySelector("input").value) || 0;
+          const t = Number(cells[5].querySelector("input").value) || 0;
+          const q = parseInt(cells[7].querySelector("input").value) || 0;
+          for (let i=0;i<q;i++) rawParts.push({ d1: w, d2: l, thk: t });
         }
-    });
-}
+      });
+    }
 
-function runPlateOpt() {
-    const sw = parseInt(document.getElementById('sw').value) || 1220;
-    const sl = parseInt(document.getElementById('sl').value) || 2440;
-    const kerf = parseInt(document.getElementById('pKerf').value) || 0;
+    if (rawParts.length === 0) {
+      return alert("No plate parts found. Use 'Import Plates' or set Profile = PLATE in the main table and try again.");
+    }
 
-    let groups = {};
-    document.querySelectorAll("#pBody tr").forEach(r => {
-        const i = r.querySelectorAll('input');
-        if (!i || i.length < 4) return;
-        const thkKey = (i[2].value || "0").toString();
-        if (!groups[thkKey]) groups[thkKey] = [];
-        const qty = parseInt(i[3].value) || 0;
-        for (let j=0; j<qty; j++) groups[thkKey].push({w: parseInt(i[0].value) || 0, l: parseInt(i[1].value) || 0});
+    // group by thickness
+    const groups = {};
+    rawParts.forEach(p => {
+      const key = String(p.thk || 0);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push({ d1: Number(p.d1) || 0, d2: Number(p.d2) || 0 });
     });
 
-    const resArea = document.getElementById('pResult');
-    resArea.innerHTML = "";
+    const results = {};
+    let totalGrossWeight = 0;
+    let overallUnplaced = 0;
 
+    // for each thickness nest separately
     Object.keys(groups).forEach(thk => {
-        let parts = groups[thk].slice().sort((a,b) => (b.w * b.l) - (a.w * a.l));
-        let plates = [];
+      let parts = groups[thk].slice().sort((a,b) => (b.d1 * b.d2) - (a.d1 * a.d2));
+      const unplaceable = [];
 
-        while (parts.length > 0) {
-            let plate = { sw, sl, items: [], spaces: [{x:0, y:0, w:sw, h:sl}] };
-            for (let i=0; i<parts.length; i++) {
-                let part = parts[i];
-                let sIdx = plate.spaces.findIndex(s => (part.w<=s.w && part.l<=s.h) || (part.l<=s.w && part.w<=s.h));
-                if (sIdx > -1) {
-                    let s = plate.spaces.splice(sIdx, 1)[0];
-                    let uw = part.w, ul = part.l;
-                    if (!(part.w<=s.w && part.l<=s.h)) { uw = part.l; ul = part.w; }
-                    plate.items.push({x:s.x, y:s.y, w:uw, h:ul, label:`${part.w}x${part.l}`});
-                    if (s.w - (uw + kerf) > 0) plate.spaces.push({x:s.x+uw+kerf, y:s.y, w: s.w - uw - kerf, h: ul});
-                    if (s.h - (ul + kerf) > 0) plate.spaces.push({x:s.x, y:s.y+ul+kerf, w: s.w, h: s.h - ul - kerf});
-                    parts.splice(i, 1);
-                    i--;
-                }
-            }
-            plates.push(plate);
+      // filter obviously oversized parts
+      parts = parts.filter(p => {
+        const fits = (p.d1 <= sw && p.d2 <= sl) || (p.d2 <= sw && p.d1 <= sl);
+        if (!fits) { unplaceable.push(p); return false; }
+        return true;
+      });
+
+      let plates = [];
+      while (parts.length > 0) {
+        let plate = { sw, sl, shelves: [], items: [], usedArea: 0 };
+        let placedAny = false;
+        for (let i = 0; i < parts.length; i++) {
+          if (tryFitInPlateImproved(plate, parts[i], kerf)) {
+            parts.splice(i,1); i--; placedAny = true;
+          }
         }
-        renderPlates(thk, plates);
-    });
-}
+        if (!placedAny) {
+          // can't place remaining parts on fresh sheet -> break to avoid infinite loop
+          break;
+        }
+        plates.push(plate);
+      }
 
-function renderPlates(thk, plates) {
+      const usedArea = plates.reduce((s,p) => s + (p.usedArea || 0), 0);
+      const grossWeight = usedArea * Number(thk) * assumedDensity / 1e9; // kg
+      results[thk] = { plates, usedArea, grossWeight, unplaced: parts.length + unplaceable.length, oversize: unplaceable.length, remaining: parts.length };
+
+      totalGrossWeight += grossWeight;
+      overallUnplaced += (parts.length + unplaceable.length);
+    });
+
+    // render per thickness using the requested renderResults(thk, plates) style
+    document.getElementById('pResult').innerHTML = '';
+    Object.keys(results).forEach(thk => {
+      const data = results[thk];
+      // Render a heading for this thickness
+      const heading = document.createElement('div');
+      heading.className = 'thickness-title';
+      heading.style.margin = '12px 0';
+      heading.style.padding = '8px';
+      heading.style.background = '#dbeafe';
+      heading.style.borderLeft = '5px solid #2563eb';
+      heading.style.fontWeight = '700';
+      heading.innerText = `Thickness ${thk} mm — ${data.plates.length} sheet(s)`;
+      document.getElementById('pResult').appendChild(heading);
+
+      // call the render function per thickness
+      renderResults(thk, data.plates);
+    });
+
+    // summary
+    let totalUsed = 0, totalStockArea = 0, totalPlates = 0;
+    Object.keys(results).forEach(thk => {
+      const { plates } = results[thk];
+      plates.forEach(p => {
+        totalUsed += p.usedArea || 0;
+        totalStockArea += (p.sw * p.sl);
+        totalPlates++;
+      });
+    });
+    const efficiency = totalStockArea > 0 ? (totalUsed / totalStockArea) * 100 : 0;
+    const plateOutput = document.getElementById('plateOutput');
+    plateOutput.innerHTML = `<div style="display:flex; gap:20px; align-items:center;"><div><strong>Sheets used:</strong> ${totalPlates}</div><div><strong>Avg efficiency:</strong> ${efficiency.toFixed(1)}%</div><div style="color:#1a73e8"><strong>Total weight (est):</strong> ${totalGrossWeight.toFixed(2)} kg</div></div>`;
+
+    if (overallUnplaced > 0) {
+      let msg = `${overallUnplaced} part(s) couldn't be placed.`;
+      Object.keys(results).forEach(thk => {
+        const r = results[thk];
+        if (r.unplaced && r.unplaced > 0) msg += `\n• Thk ${thk}mm — ${r.unplaced} not placed (oversize: ${r.oversize}, remaining: ${r.remaining})`;
+      });
+      alert(msg);
+    }
+  }
+
+  // tryFitInPlateImproved (same shelf/packing approach)
+  function tryFitInPlateImproved(plate, part, kerf) {
+    const sw = plate.sw;
+    const sl = plate.sl;
+    const orients = [{ w: Number(part.d1), l: Number(part.d2) }, { w: Number(part.d2), l: Number(part.d1) }];
+
+    // 1) try existing shelves
+    for (let shelf of plate.shelves) {
+      let bestOrient = null;
+      for (let o of orients) {
+        if (o.w <= shelf.freeW && o.l <= shelf.h) {
+          if (!bestOrient || Math.abs(o.l - shelf.h) < Math.abs(bestOrient.l - shelf.h)) bestOrient = o;
+        }
+      }
+      if (bestOrient) {
+        plate.items.push({ x: sw - shelf.freeW, y: shelf.y, w: bestOrient.w, l: bestOrient.l });
+        shelf.freeW -= (bestOrient.w + kerf);
+        plate.usedArea += (bestOrient.w * bestOrient.l);
+        return true;
+      }
+    }
+
+    // 2) create new shelf selecting orientation that packs more items side-by-side
+    let currentY = plate.shelves.reduce((sum, s) => sum + s.h + kerf, 0);
+    let bestShelfOrient = null;
+    let maxFitCount = -1;
+    for (let o of orients) {
+      if (o.l <= (sl - currentY) && o.w <= sw) {
+        let fitCount = Math.floor(sw / (o.w + kerf));
+        if (fitCount > maxFitCount) { maxFitCount = fitCount; bestShelfOrient = o; }
+      }
+    }
+    if (bestShelfOrient) {
+      let newShelf = { y: currentY, h: bestShelfOrient.l, freeW: sw - (bestShelfOrient.w + kerf) };
+      plate.shelves.push(newShelf);
+      plate.items.push({ x: 0, y: currentY, w: bestShelfOrient.w, l: bestShelfOrient.l });
+      plate.usedArea += (bestShelfOrient.w * bestShelfOrient.l);
+      return true;
+    }
+
+    return false;
+  }
+
+  // renderResults(thk, plates) - draws canvases (full-sheet scaled) per your requested style
+  function renderResults(thk, plates) {
     const resArea = document.getElementById('pResult');
+
     plates.forEach((p, idx) => {
-        const div = document.createElement('div');
-        div.className = 'plate-card';
-        div.innerHTML = `<b style="display:block; margin-bottom:5px; color:var(--purple);">Plate ${thk}mm — Sheet #${idx + 1} (${p.sw}x${p.sl})</b>`;
-        const canv = document.createElement('canvas');
-        const maxWidth = 600;
-        const scale = maxWidth / Math.max(p.sw, p.sl);
-        canv.width = Math.round(p.sw * scale);
-        canv.height = Math.round(p.sl * scale);
-        const ctx = canv.getContext('2d');
-        ctx.fillStyle = "#f8fafc";
-        ctx.fillRect(0, 0, canv.width, canv.height);
+      const div = document.createElement('div');
+      div.className = 'plate-card';
+      div.innerHTML = `<b style="display:block; margin-bottom:8px; color:var(--purple);">Plate ${thk}mm — Sheet #${idx + 1} (${p.sw}x${p.sl} mm)</b>`;
 
-        p.items.forEach(it => {
-            ctx.fillStyle = "#3b82f6"; 
-            ctx.globalAlpha = 0.3;
-            ctx.fillRect(it.x * scale, it.y * scale, it.w * scale, it.h * scale);
-            ctx.strokeStyle = "#1e3a8a";
-            ctx.globalAlpha = 1.0;
-            ctx.lineWidth = 1;
-            ctx.strokeRect(it.x * scale, it.y * scale, it.w * scale, it.h * scale);
-            ctx.fillStyle = "#1e3a8a";
-            ctx.font = "bold 10px sans-serif";
-            ctx.textAlign = "center";
-            if (it.w * scale > 30 && it.h * scale > 15) {
-                ctx.fillText(it.label, (it.x + it.w / 2) * scale, (it.y + it.h / 2) * scale + 4);
-            }
-        });
+      // create canvas sized to full-width of parent while preserving sheet aspect ratio
+      const parentWidth = Math.min(1100, (document.querySelector('.container')?.clientWidth || 1100) - 60);
+      const scale = parentWidth / Math.max(p.sw, p.sl);
+      const canv = document.createElement('canvas');
+      canv.width = Math.round(p.sw * scale);
+      canv.height = Math.round(p.sl * scale);
 
-        div.appendChild(canv);
-        resArea.appendChild(div);
+      const ctx = canv.getContext('2d');
+      // background sheet
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canv.width, canv.height);
+
+      // optional grid (light)
+      ctx.strokeStyle = "#e6eef6";
+      ctx.lineWidth = 1;
+      // draw border
+      ctx.strokeRect(0.5, 0.5, canv.width-1, canv.height-1);
+
+      // draw parts
+      p.items.forEach(it => {
+        ctx.fillStyle = "#3b82f6";
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(it.x * scale, it.y * scale, it.w * scale, it.l * scale);
+
+        ctx.strokeStyle = "#0f172a";
+        ctx.globalAlpha = 1;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(it.x * scale, it.y * scale, it.w * scale, it.l * scale);
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        if (it.w * scale > 30 && it.l * scale > 15) {
+          ctx.fillText(`${Math.round(it.w)}×${Math.round(it.l)}`, (it.x + it.w/2) * scale, (it.y + it.l/2) * scale + 4);
+        }
+      });
+
+      // append canvas (full width)
+      div.appendChild(canv);
+      resArea.appendChild(div);
     });
-}
+  }
 
-// ensure at least one row
-if (!document.getElementById('mainBody').children.length) addRow('mainBody');
+  // defaults
+  if (!document.getElementById('mainBody').children.length) addRow('mainBody');
+  if (!document.getElementById('pBody').children.length) {
+    document.getElementById('pBody').insertAdjacentHTML('beforeend', `<tr><td><input type="number" value="1220"></td><td><input type="number" value="2440"></td><td><input type="number" value="6"></td><td><input type="number" value="1"></td><td><button class="btn-del" onclick="removeRow(this)">❌</button></td></tr>`);
+  }
 
-/* Security */
-document.addEventListener("contextmenu", e => e.preventDefault());
-
+  // prevent context menu (optional)
+  document.addEventListener("contextmenu", e => e.preventDefault());
 </script>
 </body>
 </html>
