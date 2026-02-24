@@ -63,6 +63,12 @@
 
         <a href="index.html" style="text-decoration:none; color:var(--primary); font-weight:800">🏠 Home</a>
         <button class="btn" style="background:#166534; color:#fff" onclick="exportToExcel()">📊 Download Excel</button>
+        <button class="btn" style="background:#059669; color:#fff" onclick="sendToSheetDB()">📊 Save to Google Sheet</button>
+<button class="btn" 
+        style="background:#059669; color:#fff" 
+        onclick="window.open('https://script.google.com/macros/s/AKfycbxc4UQeBtZ2gYPt6Ru6-D8uEGbCUPV8f1nWkbcBrjs84_3a-LS_Nc8VMQ3Yru4lR8CqLQ/exec')">
+  📊 View Estimation Log
+</button>       
       </div>
     </div>
 
@@ -689,7 +695,93 @@
     saveToDB();
   }
 
-  // export to Excel
+async function sendToSheetDB() {
+  const apiURL = 'https://sheetdb.io/api/v1/xivz3hpu25fzl';
+  
+  // Find the button that was clicked
+  const btn = event.target;
+  const originalText = btn.innerText;
+  btn.innerText = "Processing Data...";
+  btn.disabled = true;
+
+  // 1. Capture Header Data
+  const commonHeader = {
+    "Date": document.getElementById('inputDate').value || "",
+    "Rev": document.getElementById('inputRev').value || "",
+    "Estimator": document.getElementById('inputBy').value || "",
+    "Customer": document.getElementById('inputCust').value || "",
+    "Project": document.getElementById('inputProject').value || "",
+    "Grade": document.getElementById('inputGrade').value || "",
+    "Finish": document.getElementById('inputBolt').value || "",
+    "Timestamp": new Date().toLocaleString()
+  };
+
+  // 2. Capture Table Rows
+  const tableRows = document.querySelectorAll('#mainBody tr');
+  const dataToPush = [];
+
+  tableRows.forEach((tr) => {
+    const inputs = tr.querySelectorAll('input, select');
+    
+    // Check if the row has a description or a profile to be considered "valid"
+    const description = inputs[0]?.value.trim();
+    if (description !== "" || inputs[1]?.value !== "") {
+      dataToPush.push({
+        ...commonHeader,
+        "Description": description || "",
+        "Profile": inputs[1]?.value || "",
+        "Material": inputs[2]?.value || "",
+        "D1": inputs[3]?.value || "0",
+        "D2": inputs[4]?.value || "0",
+        "Thk": inputs[5]?.value || "0",
+        "Length": inputs[6]?.value || "0",
+        "Qty": inputs[7]?.value || "0",
+        "Stock": inputs[8]?.value || "",
+        "Mode": inputs[9]?.value || "",
+        // Capture innerText for calculated fields
+        "Buy Qty": tr.querySelector('.buy-qty')?.innerText || "0",
+        "Weight": tr.querySelector('.wt-cell')?.innerText || "0",
+        "Surface": tr.querySelector('.sa-cell')?.innerText || "0",
+        "Wastage": tr.querySelector('.waste-cell')?.innerText || "0"
+      });
+    }
+  });
+
+  // 3. Validation Check
+  if (dataToPush.length === 0) {
+    alert("⚠️ Error: Please fill in at least one row in the table (Description or Profile) before saving.");
+    btn.innerText = originalText;
+    btn.disabled = false;
+    return;
+  }
+
+  // 4. Send to SheetDB
+  try {
+    btn.innerText = "Sending to Google...";
+    const response = await fetch(apiURL, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ data: dataToPush })
+    });
+
+    const result = await response.json();
+    
+    if (result.created) {
+      alert(`✅ Successfully saved ${result.created} row(s) to Google Sheet!`);
+    } else {
+      alert("⚠️ The data was sent, but the Sheet didn't accept it. Ensure your column headers in Google Sheets match exactly.");
+    }
+  } catch (error) {
+    console.error("SheetDB Error:", error);
+    alert("❌ Connection Error: Could not reach the database. Check your internet.");
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }
+}
 // export to Excel
 function exportToExcel() {
 
