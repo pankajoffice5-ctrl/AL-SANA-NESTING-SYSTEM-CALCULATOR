@@ -690,45 +690,125 @@
   }
 
   // export to Excel
-  function exportToExcel() {
-    if (typeof XLSX === 'undefined') { alert("Excel library not loaded!"); return; }
-    const wb = XLSX.utils.book_new();
-    const ws_data = [];
-    ws_data.push(["PRO-FAB MASTER PROJECT ESTIMATION REPORT"]);
-    ws_data.push(["Date:", new Date().toLocaleDateString()], [""]);
-    ws_data.push(["1. MAIN PROJECT ESTIMATION"]);
-    ws_data.push(["Description", "Profile", "Material", "D1", "D2", "Thk", "L (mm)", "Qty", "Stock", "Mode", "Buy Qty", "WT (kg)", "SURF (m2)", "Wastage"]);
-    document.querySelectorAll('#mainBody tr').forEach(row => {
-      const rowData = [];
-      const inputsAndSelects = row.querySelectorAll('input, select');
-      inputsAndSelects.forEach(i => rowData.push(i.value));
-      const buyQty = row.querySelector('.buy-qty')?.innerText || "0";
-      const wt = row.querySelector('.wt-cell')?.innerText || "0";
-      const surf = row.querySelector('.sa-cell')?.innerText || "0";
-      const waste = row.querySelector('.waste-cell')?.innerText || "0 %";
-      rowData.push(buyQty, wt, surf, waste);
-      ws_data.push(rowData);
-    });
-    const titles = ["2. CONSUMABLES", "3. ACCESSORIES", "4. OTHER", "5. FABRICATION", "6. COSTS", "7. INSTALL"];
-    for (let i = 1; i <= 6; i++) {
-      const tbody = document.getElementById(`opsBody${i}`);
-      if (tbody && tbody.rows.length > 0) {
-        ws_data.push([""], [titles[i-1]], ["Description", "Rate", "Qty/Hrs", "Total"]);
-        Array.from(tbody.rows).forEach(tr => {
-          const inputs = Array.from(tr.querySelectorAll('input')).map(inp => inp.value);
-          const sub = tr.querySelector('.subt')?.innerText || "0";
-          inputs.push(sub);
-          ws_data.push(inputs);
-        });
-      }
-    }
-    ws_data.push([""], ["GRAND TOTALS"]);
-    ws_data.push(["Total Weight:", document.getElementById('totWt').innerText]);
-    ws_data.push(["Grand Total Cost:", document.getElementById('grandTotal').innerText]);
-    const ws = XLSX.utils.aoa_to_sheet(ws_data);
-    XLSX.utils.book_append_sheet(wb, ws, "Project Report");
-    XLSX.writeFile(wb, "ProFab_Report.xlsx");
+// export to Excel
+function exportToExcel() {
+
+  if (typeof XLSX === 'undefined') { 
+    alert("Excel library not loaded!"); 
+    return; 
   }
+
+  const wb = XLSX.utils.book_new();
+  const ws_data = [];
+
+  /* ================================
+     GET HEADER INPUT VALUES
+  ===================================*/
+
+  const inputDate = document.getElementById('inputDate')?.value || "";
+  const inputRev = document.getElementById('inputRev')?.value || "";
+  const inputBy = document.getElementById('inputBy')?.value || "";
+  const inputCust = document.getElementById('inputCust')?.value || "";
+  const inputProject = document.getElementById('inputProject')?.value || "";
+  const inputGrade = document.getElementById('inputGrade')?.value || "";
+  const inputBolt = document.getElementById('inputBolt')?.value || "";
+
+  /* ================================
+     REPORT HEADER
+  ===================================*/
+
+  ws_data.push(["PRO-FAB MASTER PROJECT ESTIMATION REPORT"]);
+  ws_data.push([]);
+
+  ws_data.push(["Date:", inputDate]);
+  ws_data.push(["Revision:", inputRev]);
+  ws_data.push(["Estimator:", inputBy]);
+  ws_data.push(["Customer:", inputCust]);
+  ws_data.push(["Project:", inputProject]);
+  ws_data.push(["Material Grade:", inputGrade]);
+  ws_data.push(["Anchor / Finish:", inputBolt]);
+
+  ws_data.push([]);
+  ws_data.push(["1. MAIN PROJECT ESTIMATION"]);
+  ws_data.push([
+    "Description", "Profile", "Material", "D1", "D2", "Thk",
+    "L (mm)", "Qty", "Stock", "Mode",
+    "Buy Qty", "WT (kg)", "SURF (m2)", "Wastage"
+  ]);
+
+  /* ================================
+     MAIN TABLE DATA
+  ===================================*/
+
+  document.querySelectorAll('#mainBody tr').forEach(row => {
+
+    const rowData = [];
+    const inputsAndSelects = row.querySelectorAll('input, select');
+
+    inputsAndSelects.forEach(i => rowData.push(i.value));
+
+    const buyQty = row.querySelector('.buy-qty')?.innerText || "0";
+    const wt = row.querySelector('.wt-cell')?.innerText || "0";
+    const surf = row.querySelector('.sa-cell')?.innerText || "0";
+    const waste = row.querySelector('.waste-cell')?.innerText || "0 %";
+
+    rowData.push(buyQty, wt, surf, waste);
+    ws_data.push(rowData);
+  });
+
+  /* ================================
+     OTHER SECTIONS
+  ===================================*/
+
+  const titles = [
+    "2. CONSUMABLES",
+    "3. ACCESSORIES",
+    "4. OTHER",
+    "5. FABRICATION",
+    "6. COSTS",
+    "7. INSTALL"
+  ];
+
+  for (let i = 1; i <= 6; i++) {
+
+    const tbody = document.getElementById(`opsBody${i}`);
+
+    if (tbody && tbody.rows.length > 0) {
+
+      ws_data.push([]);
+      ws_data.push([titles[i - 1]]);
+      ws_data.push(["Description", "Rate", "Qty/Hrs", "Total"]);
+
+      Array.from(tbody.rows).forEach(tr => {
+
+        const inputs = Array.from(tr.querySelectorAll('input'))
+          .map(inp => inp.value);
+
+        const sub = tr.querySelector('.subt')?.innerText || "0";
+
+        inputs.push(sub);
+        ws_data.push(inputs);
+      });
+    }
+  }
+
+  /* ================================
+     GRAND TOTALS
+  ===================================*/
+
+  ws_data.push([]);
+  ws_data.push(["GRAND TOTALS"]);
+  ws_data.push(["Total Weight:", document.getElementById('totWt')?.innerText || "0"]);
+  ws_data.push(["Grand Total Cost:", document.getElementById('grandTotal')?.innerText || "0"]);
+
+  /* ================================
+     EXPORT FILE
+  ===================================*/
+
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb, ws, "Project Report");
+  XLSX.writeFile(wb, "ProFab_Report.xlsx");
+}
 
   // Linear import/optimizer
   function importLinear() {
