@@ -64,13 +64,15 @@
 
         <a href="index.html" style="text-decoration:none; color:var(--primary); font-weight:800">🏠 Home</a>
         <button class="btn" style="background:#166534; color:#fff" onclick="exportToExcel()">📊 Download Excel</button>
-        <button class="btn" style="background:#059669; color:#fff" onclick="sendToSheetDB()">📊 Save to Google Sheet</button>
+        <button id="saveAllBtn" onclick="saveCompleteProject(event)" class="btn" style="background:#059669; color:#fff">
+    📊 Save to Google Sheet</button>
 <button class="btn" 
         style="background:#059669; color:#fff" 
-        onclick="window.open('https://script.google.com/macros/s/AKfycbyFZypDB604NU_0rz5-yI2-FJkQsk9_p_NeM4B9mb9EkWGBcaS1NpiTeZCc4hGxNe0Elw/exec?page=index')">
+        onclick="window.open('https://script.google.com/macros/s/AKfycbzLpS383MFnpISBCVD9Z5SeRT7IG9S1ww0p9hdYqPgQ-HT367cSILQuxQLlEasWCCHe7Q/exec')">
   📊 View Estimation Log
 </button>
-<button class="btn" onclick="uploadPDFToDrive()">📁 Save PDF to Drive</button> 
+<button class="btn" onclick="uploadPDFToDrive()">📁 Save PDF to Drive</button>
+
       </div>
     </div>
 
@@ -877,6 +879,100 @@ function uploadPDFToDrive() {
         // 3. Remove the class after printing is done/cancelled
         document.body.classList.remove('printing-mode');
     }, 500);
+}
+
+
+async function saveCompleteProject(e) {
+    const apiURL = 'https://sheetdb.io/api/v1/00b07natga3hj?sheet=CONSUMABLE';
+    
+    if (e) e.preventDefault();
+    const btn = e.target;
+    const originalText = btn.innerText;
+    
+    btn.innerText = "⏳ Saving Everything...";
+    btn.disabled = true;
+
+    // 1. Capture Common Header Data
+    const commonHeader = {
+        "Date": document.getElementById('inputDate')?.value || "",
+        "Rev": document.getElementById('inputRev')?.value || "",
+        "Estimator": document.getElementById('inputBy')?.value || "",
+        "Customer": document.getElementById('inputCust')?.value || "",
+        "Project": document.getElementById('inputProject')?.value || "",
+        "Grade": document.getElementById('inputGrade')?.value || "",
+        "Finish": document.getElementById('inputBolt')?.value || "",
+        "Timestamp": new Date().toLocaleString()
+    };
+
+    const dataToPush = [];
+
+    try {
+        // --- PART A: Capture Main Table Rows (#mainBody) ---
+        const mainRows = document.querySelectorAll('#mainBody tr');
+        mainRows.forEach((tr) => {
+            const inputs = tr.querySelectorAll('input, select');
+            const description = inputs[0]?.value.trim();
+            if (description !== "") {
+                dataToPush.push({
+                    ...commonHeader,
+                    "Category": "MAIN FABRICATION",
+                    "Description": description,
+                    "Rate": inputs[1]?.value || "0", // Adjust index based on your main table structure
+                    "Qty": inputs[7]?.value || "0",  // Adjust index based on your main table structure
+                    "Total": tr.querySelector('.wt-cell')?.innerText || "0" // Adjust class based on your main table
+                });
+            }
+        });
+
+        // --- PART B: Capture Consumables Tables (opsBody1-6) ---
+        const consumableIds = ['opsBody1', 'opsBody2', 'opsBody3', 'opsBody4', 'opsBody5', 'opsBody6'];
+        consumableIds.forEach((id) => {
+            const tbody = document.getElementById(id);
+            if (!tbody) return;
+
+            const h2 = tbody.closest('div')?.querySelector('h2');
+            const categoryLabel = h2 ? h2.innerText.split('+')[0].trim() : "CONSUMABLE";
+            
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                const inputs = tr.querySelectorAll('input');
+                const description = inputs[0]?.value.trim();
+                if (description && description !== "") {
+                    dataToPush.push({
+                        ...commonHeader,
+                        "Category": categoryLabel,
+                        "Description": description,
+                        "Rate": inputs[1]?.value || "0",
+                        "Qty": inputs[2]?.value || "0",
+                        "Total": tr.querySelector('.subt')?.innerText || "0"
+                    });
+                }
+            });
+        });
+
+        if (dataToPush.length === 0) throw new Error("No data found to save.");
+
+        // 2. Send Merged Data to SheetDB
+        const response = await fetch(apiURL, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: dataToPush })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.created) {
+            alert(`✅ Success! Total ${result.created} rows saved for Project: ${commonHeader.Project}`);
+        } else {
+            alert("⚠️ Error: Check your Google Sheet headers.");
+        }
+
+    } catch (error) {
+        console.error("Save Error:", error);
+        alert("❌ Error: " + error.message);
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+    }
 }
 
 /// export to Excel
