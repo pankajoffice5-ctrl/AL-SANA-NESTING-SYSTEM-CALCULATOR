@@ -1459,6 +1459,11 @@ function exportToExcel() {
 
   // prevent context menu (optional)
   document.addEventListener("contextmenu", e => e.preventDefault());
+  document.onkeydown = function(e) {
+  if (e.key === "F12") {
+    return false;
+  }
+};
 </script>
 </body>
 </html>
