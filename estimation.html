@@ -32,8 +32,13 @@
     .plate-card b { font-size:16px; }
     .plate-result-sheet { width:100%; margin-top:20px; }
     canvas { display:block; max-width:100%; height:auto; border-radius:6px; background:#f8fafc; border:1px solid #9ca3af; }
-    .summary-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin-top:16px; }
-    .summary-card { background:var(--primary); color:#fff; padding:12px; border-radius:8px; text-align:center; }
+    .summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+    .summary-card { background:var(--primary); color:#fff; padding:12px; border-radius:8px; text-align:center;justify-content: center; /* center grid */   }
     .summary-card span { display:block; font-weight:800; font-size:18px; margin-top:6px; color:#38bdf8; }
     .header-table th, .header-table td { border:1px solid #eef6ff; background:#fbfdff; padding:8px; }
     #pResult { max-height:none; overflow:visible; padding:8px; background:#f8fafc; border:1px solid #e6eef6; border-radius:6px; }
@@ -64,8 +69,9 @@
 
         <a href="index.html" style="text-decoration:none; color:var(--primary); font-weight:800">🏠 Home</a>
         <button class="btn" style="background:#166534; color:#fff" onclick="exportToExcel()">📊 Download Excel</button>
-        <button id="saveAllBtn" onclick="saveCompleteProject(event)" class="btn" style="background:#059669; color:#fff">
-    📊 Save to Google Sheet</button>
+<button id="saveAllBtn" onclick="handleSaveProcess(event)" class="btn" style="background:#059669; color:#fff">
+    📊 Send to Data Sheet
+</button>
 <button class="btn" 
         style="background:#059669; color:#fff" 
         onclick="window.open('https://script.google.com/macros/s/AKfycbzLpS383MFnpISBCVD9Z5SeRT7IG9S1ww0p9hdYqPgQ-HT367cSILQuxQLlEasWCCHe7Q/exec')">
@@ -88,6 +94,7 @@
             <th>Project</th>
             <th>Material Grade</th>
             <th>Anchor / Finish</th>
+            <th>Margine %</th>
           </tr>
         </thead>
         <tbody>
@@ -99,6 +106,7 @@
             <td><input id="inputProject" value="XXXX" /></td>
             <td><input id="inputGrade" value="S275 JR" /></td>
             <td><input id="inputBolt" value="GI · HDG + Painting" /></td>
+            <td><input id="margin" value="25" oninput="calculateAll()" /></td>
           </tr>
         </tbody>
       </table>
@@ -197,6 +205,7 @@
       <div class="summary-card"><small>PAINTING COST</small><span id="totPaint">0.00</span></div>
       <div class="summary-card"><small>GALVANIZING</small><span id="totGalv">0.00</span></div>
       <div class="summary-card" style="background:#059669"><small>GRAND TOTAL</small><span id="grandTotal">0.00</span></div>
+      <div class="summary-card" style="background:#059669"><small>LANDING PRICE</small><span id="landTotal">0.00</span></div>
     </div>
   </div>
 
@@ -253,6 +262,11 @@
   let db;
 
   function initIndexedDB() {
+  // Auto set today's date
+const dateInput = document.getElementById("inputDate");
+if (dateInput && !dateInput.value) {
+  dateInput.value = new Date().toISOString().split("T")[0];
+}
     const req = indexedDB.open("ProFabMasterDB", 1);
     req.onupgradeneeded = (e) => {
       const idb = e.target.result;
@@ -695,6 +709,19 @@
     document.getElementById('totPaint').innerText = (tsa * rs).toFixed(2);
     document.getElementById('totGalv').innerText = (tw * rg).toFixed(2);
     document.getElementById('grandTotal').innerText = (tw*rm + tsa*rs + tw*rg + top).toLocaleString(undefined, { minimumFractionDigits: 2 });
+// ===== LANDING PRICE =====
+const grandTotalValue = parseFloat(
+  document.getElementById("grandTotal").textContent
+) || 0;
+
+const marginPercent = parseFloat(
+  document.getElementById("margin").value
+) || 0;
+
+const landingPrice = grandTotalValue * (1 + marginPercent / 100);
+
+document.getElementById("landTotal").textContent =
+  landingPrice.toFixed(2);
 
     saveToDB();
   }
@@ -882,7 +909,7 @@ function uploadPDFToDrive() {
 }
 
 
-async function saveCompleteProject(e) {
+async function exportToConsumable(e) {
     const apiURL = 'https://sheetdb.io/api/v1/00b07natga3hj?sheet=CONSUMABLE';
     
     if (e) e.preventDefault();
@@ -899,8 +926,6 @@ async function saveCompleteProject(e) {
         "Estimator": document.getElementById('inputBy')?.value || "",
         "Customer": document.getElementById('inputCust')?.value || "",
         "Project": document.getElementById('inputProject')?.value || "",
-        "Grade": document.getElementById('inputGrade')?.value || "",
-        "Finish": document.getElementById('inputBolt')?.value || "",
         "Timestamp": new Date().toLocaleString()
     };
 
@@ -971,6 +996,39 @@ async function saveCompleteProject(e) {
         alert("❌ Error: " + error.message);
     } finally {
         btn.innerText = originalText;
+        btn.disabled = false;
+    }
+}
+
+async function handleSaveProcess(event) {
+    const btn = document.getElementById('saveAllBtn');
+    const originalText = btn.innerHTML;
+    
+    // 1. Visual feedback
+    btn.disabled = true;
+    btn.innerHTML = "⌛ Processing...";
+    btn.style.background = "#6b7280"; // Gray out while saving
+
+    try {
+        // 2. Run both functions
+        // We use 'await' if they are async, or just call them normally
+        await sendToSheetDB(event);
+        await exportToConsumable(event);
+
+        // 3. Success feedback
+        btn.innerHTML = "✅ Saved Successfully!";
+        btn.style.background = "#059669";
+        
+        // Optional: Refresh the data on the page after a short delay
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }, 3000);
+
+    } catch (error) {
+        console.error("Save failed:", error);
+        btn.innerHTML = "❌ Error Saving";
+        btn.style.background = "#dc2626"; // Red for error
         btn.disabled = false;
     }
 }
