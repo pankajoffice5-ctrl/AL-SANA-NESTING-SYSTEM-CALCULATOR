@@ -718,7 +718,7 @@ const marginPercent = parseFloat(
   document.getElementById("margin").value
 ) || 0;
 
-const landingPrice = grandTotalValue * (1 + marginPercent / 100);
+const landingPrice = grandTotalValue / (1 - marginPercent / 100);
 
 document.getElementById("landTotal").textContent =
   landingPrice.toFixed(2);
