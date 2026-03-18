@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AL SANA: Professional Landscape Nester</title>
+  <style>
+    :root { --primary: #0f172a; --accent: #2563eb; --purple: #7c3aed; --bg: #f1f5f9; --border: #cbd5e1; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; font-size: 13px; color: #334155; }
+    .container { max-width: 1400px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    
+    .input-area { background: #f8fafc; border: 2px dashed var(--accent); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 20px; }
+    textarea { width: 100%; height: 100px; margin-top: 10px; border: 1px solid var(--border); border-radius: 4px; padding: 10px; font-family: monospace; }
+    
+    .section-header { background: var(--primary); color: white; padding: 10px; border-radius: 6px; margin-top: 25px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+    .mat-group { margin-top: 15px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; background: #fff; }
+    .mat-title { font-size: 15px; font-weight: 800; color: var(--primary); border-bottom: 2px solid var(--accent); padding-bottom: 5px; margin-bottom: 15px; }
+
+    .control-row { display: flex; gap: 20px; align-items: center; background: #f1f5f9; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+    .control-row input { width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+
+    .btn { padding: 10px 25px; border-radius: 6px; border: none; cursor: pointer; font-weight: 700; color: white; background: var(--accent); width: 100%; margin-top: 10px; font-size: 14px; }
+    
+    /* 1D Visuals */
+    .bar-row { height: 26px; background: #e2e8f0; border-radius: 4px; display: flex; margin-top: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
+    .cut-segment { border-right: 1px solid white; background: var(--accent); color: white; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    
+    /* 2D Visuals */
+    .sheet-container { display: inline-block; margin-right: 20px; margin-bottom: 20px; vertical-align: top; }
+    canvas { border: 2px solid #334155; background: white; display: block; margin-top: 5px; box-shadow: 3px 3px 8px rgba(0,0,0,0.1); }
+    .summary-tag { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="input-area">
+    <strong>STEP 1: PASTE DATA FROM EXCEL</strong>
+    <textarea id="xlInput" placeholder="Paste Material, D1, D2, THK, Length, Qty here..."></textarea>
+    <button class="btn" onclick="processAll()">🚀 SYNC & GENERATE ALL NESTING</button>
+  </div>
+
+  <div class="section-header" style="background: var(--accent);">
+    <span>1. LINEAR NESTING (RAW MATERIALS)</span>
+    <div>
+        Stock Length: 
+        <select id="linStock" style="padding: 3px; border-radius: 4px;">
+            <option value="6000">6000 mm</option>
+            <option value="12000">12000 mm</option>
+        </select>
+    </div>
+  </div>
+  <div id="linearOutput"></div>
+
+  <div class="section-header" style="background: var(--purple);">
+    <span>2. PLATE NESTING (LANDSCAPE VIEW)</span>
+    <div class="control-row" style="background: none; padding: 0; color: white;">
+        Stock Size: 
+        <input id="sw" type="number" value="2440" style="width:60px"> x 
+        <input id="sl" type="number" value="1220" style="width:60px">
+    </div>
+  </div>
+  <div id="plateOutput"></div>
+</div>
+
+<script>
+let parsedData = [];
+
+function processAll() {
+    const input = document.getElementById('xlInput').value.trim();
+    if (!input) return alert("Please paste data first.");
+
+    const rows = input.split('\n');
+    parsedData = [];
+
+    rows.forEach(row => {
+        const cols = row.split('\t').map(c => c.trim());
+        if (cols.length < 5) return;
+
+        const mat = cols[0].toUpperCase();
+        const d1 = parseFloat(cols[1]) || 0;
+        const d2 = parseFloat(cols[2]) || 0;
+        const thk = parseFloat(cols[3]) || 0;
+        const len = parseFloat(cols[4]) || 0;
+        const qty = parseInt(cols[5]) || 0;
+
+        if (qty > 0) parsedData.push({ mat, d1, d2, thk, len, qty });
+    });
+
+    runLinear();
+    runPlates();
+}
+
+function runLinear() {
+    const out = document.getElementById('linearOutput');
+    out.innerHTML = '';
+    const stock = parseFloat(document.getElementById('linStock').value);
+
+    // Group by (Material + THK + D1) - Any change creates new procurement
+    const groups = {};
+    parsedData.filter(d => !d.mat.includes('PLATE')).forEach(d => {
+        const key = `${d.mat} (Size: ${d.d1} THK: ${d.thk}mm)`;
+        if (!groups[key]) groups[key] = [];
+        for(let i=0; i<d.qty; i++) groups[key].push(d.len);
+    });
+
+    for (const [title, cuts] of Object.entries(groups)) {
+        cuts.sort((a, b) => b - a);
+        let bars = [];
+        cuts.forEach(c => {
+            let fit = bars.find(b => (b.used + c) <= stock);
+            if (fit) { fit.parts.push(c); fit.used += c; }
+            else { bars.push({ parts: [c], used: c }); }
+        });
+
+        let html = `<div class="mat-group"><div class="mat-title">${title} <span class="summary-tag">Procure: ${bars.length} Bars</span></div>`;
+        bars.forEach((b, i) => {
+            html += `<div style="margin-top:8px;"><small>Bar #${i+1} (Waste: ${stock-b.used}mm)</small><div class="bar-row">`;
+            b.parts.forEach(p => html += `<div class="cut-segment" style="width:${(p/stock)*100}%">${p}</div>`);
+            html += `</div></div>`;
+        });
+        out.insertAdjacentHTML('beforeend', html + `</div>`);
+    }
+}
+
+function runPlates() {
+    const out = document.getElementById('plateOutput');
+    out.innerHTML = '';
+    
+    // Get stock dimensions from input
+    let sW = parseFloat(document.getElementById('sw').value);
+    let sL = parseFloat(document.getElementById('sl').value);
+    
+    // Force Landscape for display: Longest dimension is width
+    const displayW = Math.max(sW, sL);
+    const displayL = Math.min(sW, sL);
+    const kerf = 3;
+
+    const groups = {};
+    parsedData.filter(d => d.mat.includes('PLATE')).forEach(d => {
+        const key = `PLATE THICKNESS: ${d.thk}mm`;
+        if (!groups[key]) groups[key] = [];
+        for(let i=0; i<d.qty; i++) groups[key].push({ w: d.d1, l: d.d2 });
+    });
+
+    for (const [title, parts] of Object.entries(groups)) {
+        parts.sort((a,b) => (b.w * b.l) - (a.w * a.l));
+        let sheets = [{ y: 0, shelves: [], items: [] }];
+
+        parts.forEach(p => {
+            let placed = false;
+            // Check orientation to fit landscape-heavy layout
+            let pw = Math.max(p.w, p.l);
+            let pl = Math.min(p.w, p.l);
+
+            for (let s of sheets) {
+                for (let sh of s.shelves) {
+                    if (pw <= sh.fw && pl <= sh.h) {
+                        s.items.push({ x: displayW - sh.fw, y: sh.y, w: pw, l: pl });
+                        sh.fw -= (pw + kerf); placed = true; break;
+                    }
+                }
+                if (placed) break;
+                if (s.y + pl <= displayL) {
+                    s.shelves.push({ y: s.y, h: pl, fw: displayW - (pw + kerf) });
+                    s.items.push({ x: 0, y: s.y, w: pw, l: pl });
+                    s.y += (pl + kerf); placed = true; break;
+                }
+            }
+            if (!placed) sheets.push({ y: pl + kerf, shelves: [{ y: 0, h: pl, fw: displayW - (pw + kerf) }], items: [{ x: 0, y: 0, w: pw, l: pl }] });
+        });
+
+        let html = `<div class="mat-group"><div class="mat-title">${title} <span class="summary-tag">Procure: ${sheets.length} Sheets</span></div>`;
+        out.insertAdjacentHTML('beforeend', html);
+        const lastGroup = out.lastElementChild;
+
+        sheets.forEach((sh, idx) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'sheet-container';
+            const scale = 400 / displayW; 
+            const canv = document.createElement('canvas');
+            canv.width = displayW * scale; canv.height = displayL * scale;
+            const ctx = canv.getContext('2d');
+
+            sh.items.forEach(it => {
+                ctx.fillStyle = "#7c3aed"; ctx.globalAlpha = 0.8;
+                ctx.fillRect(it.x * scale, it.y * scale, it.w * scale, it.l * scale);
+                ctx.strokeStyle = "white"; ctx.lineWidth = 1;
+                ctx.strokeRect(it.x * scale, it.y * scale, it.w * scale, it.l * scale);
+                
+                // Labels - Wrighting size on plate like before
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = "white";
+                ctx.font = "bold 9px Arial";
+                ctx.textAlign = "center";
+                if(it.w * scale > 30) {
+                    ctx.fillText(`${it.w}x${it.l}`, (it.x + it.w/2) * scale, (it.y + it.l/2) * scale + 4);
+                }
+            });
+            wrap.innerHTML = `<small>Sheet #${idx+1} (${displayW}x${displayL})</small>`;
+            wrap.appendChild(canv);
+            lastGroup.appendChild(wrap);
+        });
+    }
+}
+</script>
+</body>
+</html>
